@@ -2,6 +2,7 @@
 #include"Matrix.hpp"
 #include"PotentialFlowElements.hpp"
 #include"AerodynamicBody2D.hpp"
+#include"Airfoil.hpp"
 
 #include<iostream>
 
@@ -150,28 +151,144 @@ int main(int narg, char** arg) {
 
     }
 
+
+    /* Fluid Elements test */
+    {
+
+        nde::Vector<double> x0(2);
+        x0.fill(0.0);
+
+        nde::Vector<double> x1(2);
+        x1(0) = 0.05 * cos(210. * M_PI / 180.);
+        x1(1) = 0.05 * sin(210. * M_PI / 180.);
+
+        nde::Vector<double> x2(2);
+
+        x2(0) = 0.05 * cos(30. * M_PI / 180.);
+        x2(1) = 0.05 * sin(30. * M_PI / 180.);
+
+        for (int i = 0; i < 8; ++i) {
+            double angle = 30.0 + double(i) * 360. / 8.;
+            nde::Vector<double> x(2);
+            x(0) = 1.0 * cos(angle * M_PI / 180.);
+            x(1) = 1.0 * sin(angle * M_PI / 180.);
+            cout << "Potential Source, angle " << angle << " = " <<
+                    nde::potential_flow::ConstantSource2D_potential(x1, x2, x) << endl;
+        }
+
+        for (int i = 0; i < 8; ++i) {
+            double angle = 30.0 + double(i) * 360. / 8.;
+            nde::Vector<double> x(2);
+            x(0) = 1.0 * cos(angle * M_PI / 180.);
+            x(1) = 1.0 * sin(angle * M_PI / 180.);
+            nde::Vector<double> v = nde::potential_flow::ConstantSource2D_speed(x1, x2, x);
+            cout << "Speed Source, angle " << angle << " = " << v(0) << "," << v(1) << endl;
+        }
+
+        for (int i = 0; i < 8; ++i) {
+            double angle = 30.0 + double(i) * 360. / 8.;
+            nde::Vector<double> x(2);
+            x(0) = 1.0 * cos(angle * M_PI / 180.);
+            x(1) = 1.0 * sin(angle * M_PI / 180.);
+            cout << "Potential Doublet, angle " << angle << " = " <<
+                    nde::potential_flow::ConstantDoublet2D_potential(x1, x2, x) << endl;
+        }
+
+        for (int i = 0; i < 8; ++i) {
+            double angle = 30.0 + double(i) * 360. / 8.;
+            nde::Vector<double> x(2);
+            x(0) = 1.0 * cos(angle * M_PI / 180.);
+            x(1) = 1.0 * sin(angle * M_PI / 180.);
+            nde::Vector<double> v = nde::potential_flow::ConstantDoublet2D_speed(x1, x2, x);
+            cout << "Speed Doublet, angle " << angle << " = " << v(0) << "," << v(1) << endl;
+        }
+
+        for (int i = 0; i < 8; ++i) {
+            double angle = 30.0 + double(i) * 360. / 8.;
+            nde::Vector<double> x(2);
+            x(0) = 1.0 * cos(angle * M_PI / 180.);
+            x(1) = 1.0 * sin(angle * M_PI / 180.);
+            cout << "Potential Doublet, angle " << angle << " = " <<
+                    nde::potential_flow::PointVortex2D_potential(x2, x) -
+                    nde::potential_flow::PointVortex2D_potential(x1, x) << endl;
+        }
+
+        for (int i = 0; i < 8; ++i) {
+            double angle = 30.0 + double(i) * 360. / 8.;
+            nde::Vector<double> x(2);
+            x(0) = 1.0 * cos(angle * M_PI / 180.);
+            x(1) = 1.0 * sin(angle * M_PI / 180.);
+            nde::Vector<double> v = nde::potential_flow::PointVortex2D_speed(x2, x) -
+                    nde::potential_flow::PointVortex2D_speed(x1, x);
+            cout << "Speed Doublet, angle " << angle << " = " << v(0) << "," << v(1) << endl;
+        }
+
+        for (int i = 0; i < 8; ++i) {
+            double angle = 30.0 + double(i) * 360. / 8.;
+            nde::Vector<double> x(2);
+            x(0) = 1.0 * cos(angle * M_PI / 180.);
+            x(1) = 1.0 * sin(angle * M_PI / 180.);
+            cout << "Potential Vortex, angle " << angle << " = " <<
+                    nde::potential_flow::PointVortex2D_potential(x0, x) << endl;
+        }
+
+        for (int i = 0; i < 8; ++i) {
+            double angle = 30.0 + double(i) * 360. / 8.;
+            nde::Vector<double> x(2);
+            x(0) = 1.0 * cos(angle * M_PI / 180.);
+            x(1) = 1.0 * sin(angle * M_PI / 180.);
+            nde::Vector<double> v = nde::potential_flow::PointVortex2D_speed(x0, x);
+            cout << "Speed Vortex, angle " << angle << " = " << v(0) << "," << v(1) << endl;
+        }
+
+    }
+
+
     /* Aerodynamic body test */
     {
-        nde::Vector<double> p1(2);
-        p1(0) = 0.0;
-        p1(1) = 0.0;
-        nde::Vector<double> p2(2);
-        p2(0) = 0.5;
-        p2(1) = 0.1;
-        nde::Vector<double> p3(2);
-        p3(0) = 1.0;
-        p3(1) = 0.0;
+        int num_panels = 10;
+        nde::Vector<nde::Panel2D> panels(2 * num_panels);
+        for (int i = 0; i < num_panels; ++i) {
+            nde::Vector<double> x1(2);
+            nde::Vector<double> x2(2);
+            x1(0) = 1.0 * i / double(num_panels);
+            x2(0) = 1.0 * (i + 1) / double(num_panels);
+            if (x1(0) <= 0.5)
+                x1(1) = 0.1 * x1(0) / 0.5;
+            else
+                x1(1) = 0.2 - 0.1 * x1(0) / 0.5;
 
-        nde::Panel2D panel1(p1, p2);
-        nde::Panel2D panel2(p2, p3);
-        nde::Panel2D panel3(p3, p1);
+            if (x2(0) <= 0.5)
+                x2(1) = 0.1 * x2(0) / 0.5;
+            else
+                x2(1) = 0.2 - 0.1 * x2(0) / 0.5;
 
-        nde::Vector<nde::Panel2D> panels(3);
-        panels(0) = panel1;
-        panels(1) = panel2;
-        panels(2) = panel3;
+            panels(i).setPoints(x1, x2);
 
-        nde::Vector<double> wake_coordinates = p3;
+        }
+
+        for (int i = 0; i < num_panels; ++i) {
+            nde::Vector<double> x1(2);
+            nde::Vector<double> x2(2);
+            x1(0) = 1.0 - 1.0 * i / double(num_panels);
+            x2(0) = 1.0 - 1.0 * (i + 1) / double(num_panels);
+            if (x1(0) <= 0.5)
+                x1(1) = 0.0; //-0.1 * x1(0) / 0.5;
+            else
+                x1(1) = 0.0; //-0.2 + 0.1 * x1(0) / 0.5;
+
+            if (x2(0) <= 0.5)
+                x2(1) = 0.0; //-0.1 * x2(0) / 0.5;
+            else
+                x2(1) = 0.0; //-0.2 + 0.1 * x2(0) / 0.5;
+
+            panels(i + num_panels).setPoints(x1, x2);
+
+        }
+
+        nde::Vector<double> wake_coordinates(2);
+        wake_coordinates(0) = 1.0;
+        wake_coordinates(1) = 0.0;
         double air_speed = 1.0;
         double angle_attack = 0.0;
 
@@ -199,15 +316,40 @@ int main(int narg, char** arg) {
         p_out(3)(1) = -1.0;
 
         for (int i = 0; i < panels.size(); ++i) {
-            double phi_control = body2D.getPotential(
-                    panels(i).getMidPoint() - panels(i).getNormal()*1.0e-3);
+            nde::Vector<double> control_point =
+                    panels(i).getMidPoint() - panels(i).getNormal()*(panels(i).getLength()* 1.0e-3);
+            double phi_control = body2D.getPotential(control_point);
+            cout << "Control point (" << i + 1 << ") = " << control_point(0)
+                    << "," << control_point(1) << endl;
             cout << "Potential control point (" << i + 1 << ") = " << phi_control << endl;
+            nde::Vector<double> u_control = body2D.getSpeed(
+                    panels(i).getMidPoint() + panels(i).getNormal()*(panels(i).getLength()* 1.0e-3));
+            cout << "Speed control point (" << i + 1 << ") = " << u_control(0)
+                    << "," << u_control(1) << endl;
         }
 
         for (int i = 0; i < p_out.size(); ++i) {
             double phi_out = body2D.getPotential(p_out(i));
             cout << "Potential point out (" << i + 1 << ") = " << phi_out << endl;
         }
+
+    }
+
+
+
+    {
+
+        nde::NacaAirfoil naca_airfoil(1.0, 0, 0, 2, 0);
+
+        nde::Airfoil airfoil(naca_airfoil);
+
+        nde::Vector<nde::Panel2D> panels = airfoil.getPanels(0.2);
+
+        for (int i = 0; i < panels.size(); ++i) {
+            nde::Vector<double> x = panels(i).getMidPoint();
+            cout << "Panel mid point " << i << " = " << x(0) << "," << x(1) << endl;
+        }
+
     }
 
     return 0;

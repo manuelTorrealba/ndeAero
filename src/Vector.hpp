@@ -42,6 +42,10 @@ namespace nde {
             return dim;
         }
 
+        void fill(T value) {
+            for (int i=0; i<dim; ++i) *(x+i) = value;
+        }
+        
         void resize(int n) {
             if (dim > 0) std::free(x);
             dim = n;

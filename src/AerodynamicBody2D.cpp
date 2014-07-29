@@ -31,12 +31,13 @@ namespace nde {
          *  is going to be enforced */
         Vector<Vector<double> > panel_mid_points_in(num_panels);
         for (int i = 0; i < num_panels; ++i)
-            panel_mid_points_in(i) = panels(i).getMidPoint() - panels(i).getNormal()*1.0e-3;
+            panel_mid_points_in(i) = panels(i).getMidPoint() -
+            panels(i).getNormal()*(panels(i).getLength()* 1.0e-3);
 
         /* calculate the sources intensities */
         sources.resize(num_panels);
         for (int i = 0; i < num_panels; ++i)
-            sources(i) = panels(i).getNormal() * incident_flow;
+            sources(i) = (-1.0) * (panels(i).getNormal() * incident_flow);
 
         /* calculate the doublets intensity */
 
@@ -92,6 +93,14 @@ namespace nde {
         // wake intensity
         wake = doublets(num_panels - 1) - doublets(0);
 
+        for (int i = 0; i < sources.size(); ++i)
+            std::cout << "Sources (" << "i) = " << sources(i) << std::endl;
+
+        for (int i = 0; i < doublets.size(); ++i)
+            std::cout << "Doublets (" << "i) = " << doublets(i) << std::endl;
+
+        std::cout << "wake = " << wake << std::endl;
+
     }
 
     double AerodynamicBody2D::getPotential(const Vector<double>& x) const {
@@ -107,9 +116,37 @@ namespace nde {
                 panels(i).getEndPoint(),
                 x);
 
-        return phi + wake * potential_flow::PointVortex2D_potential(
+        phi = phi + wake * potential_flow::PointVortex2D_potential(
                 wake_coordinates, x);
-        
+
+        return phi + incidentFlowPotential(x);
+
+    }
+
+    Vector<double> AerodynamicBody2D::getSpeed(const Vector<double>& x) const {
+
+        Vector<double> u(2);
+        u.fill(0.0);
+
+        for (int i = 0; i < panels.size(); ++i)
+            u = u + potential_flow::ConstantDoublet2D_speed(
+                panels(i).getStartPoint(),
+                panels(i).getEndPoint(),
+                x) * doublets(i)
+            + potential_flow::ConstantSource2D_speed(
+                panels(i).getStartPoint(),
+                panels(i).getEndPoint(),
+                x) * sources(i);
+
+        u = u + potential_flow::PointVortex2D_speed(
+                wake_coordinates, x) * wake;
+
+        return u + incident_flow;
+
+    }
+
+    double AerodynamicBody2D::incidentFlowPotential(Vector<double> x) const {
+        return incident_flow(0) * x(0) + incident_flow(1) * x(1);
     }
 
 }

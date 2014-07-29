@@ -23,6 +23,7 @@ namespace nde {
                 double angle_attack);
         void calcPotentialFlow();
         double getPotential(const Vector<double>& x) const;
+        Vector<double> getSpeed(const Vector<double>& x) const;
 
     private:
         Vector<Panel2D> panels;
@@ -31,6 +32,8 @@ namespace nde {
         Vector<double> sources;
         Vector<double> doublets;
         double wake;
+        
+        double incidentFlowPotential(Vector<double> x) const;
         
     };
 

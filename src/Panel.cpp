@@ -13,6 +13,21 @@ namespace nde {
             const Vector<double>& start_point_in,
             const Vector<double>& end_point_in)
     : start_point(start_point_in), end_point(end_point_in) {
+
+        setPanel2D();
+
+    }
+
+    void Panel2D::setPoints(const Vector<double>& start_point_in,
+            const Vector<double>& end_point_in) {
+
+        start_point = start_point_in;
+        end_point = end_point_in;
+        setPanel2D();
+
+    }
+
+    void Panel2D::setPanel2D() {
         dl = end_point - start_point;
         length = dl.norm();
         mid_point = (start_point + end_point) * 0.5;

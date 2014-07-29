@@ -17,6 +17,9 @@ namespace nde {
         Panel2D(const Vector<double>& start_point_in,
                 const Vector<double>& end_point_in);
 
+        void setPoints(const Vector<double>& start_point_in,
+                const Vector<double>& end_point_in);
+
         const Vector<double>& getStartPoint() const;
         const Vector<double>& getEndPoint() const;
         const double getDx() const;
@@ -33,7 +36,7 @@ namespace nde {
         double length;
         Vector<double> mid_point;
         Vector<double> normal;
-
+        void setPanel2D();
     };
 
 }
