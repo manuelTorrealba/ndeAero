@@ -17,15 +17,19 @@ namespace nde {
     class AerodynamicBody2D {
     public:
         AerodynamicBody2D(
-                const Vector<Panel2D>& panels,
-                const Vector<double>& wake_coordinates,
-                double air_speed,
-                double angle_attack);
+                double chord_in,
+                const Vector<Panel2D>& panels_in,
+                const Vector<double>& wake_coordinates_in,
+                double air_speed_in,
+                double angle_attack_in);
         void calcPotentialFlow();
         double getPotential(const Vector<double>& x) const;
         Vector<double> getSpeed(const Vector<double>& x) const;
+        Vector<double> AerodynamicBody2D::calcForceCoefficients() const;
 
     private:
+        double chord;
+        double angle_attack;
         Vector<Panel2D> panels;
         Vector<double> wake_coordinates;
         Vector<double> incident_flow;

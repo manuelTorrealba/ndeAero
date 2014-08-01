@@ -30,11 +30,14 @@ namespace nde {
     void Panel2D::setPanel2D() {
         dl = end_point - start_point;
         length = dl.norm();
+        tangent = dl / length;
         mid_point = (start_point + end_point) * 0.5;
-        Vector<double> n(2);
-        n(0) = -dl(1);
-        n(1) = dl(0);
-        normal = n / n.norm();
+        normal.resize(2);
+        normal(0) = -tangent(1);
+        normal(1) = tangent(0);
+
+        control_point_in = mid_point - normal * (length * 1.0e-4);
+        control_point_out = mid_point + normal * (length * 1.0e-4);
     }
 
     const Vector<double>& Panel2D::getStartPoint() const {
@@ -65,8 +68,20 @@ namespace nde {
         return mid_point;
     }
 
+    const Vector<double>& Panel2D::getControlPointIn() const {
+        return control_point_in;
+    }
+
+    const Vector<double>& Panel2D::getControlPointOut() const {
+        return control_point_out;
+    }
+
     const Vector<double>& Panel2D::getNormal() const {
         return normal;
+    }
+
+    const Vector<double>& Panel2D::getTangent() const {
+        return tangent;
     }
 
 }

@@ -27,7 +27,7 @@ namespace nde {
         Matrix(int numrows, int numcols) : rows(numrows), cols(numcols) {
             mat.resize(rows);
             for (int i = 0; i < rows; ++i)
-                mat(i) = new Vector<T>(cols);
+                mat(i) = new Vector<T > (cols);
         }
 
         Matrix(const Matrix<T>& A) {
@@ -35,9 +35,9 @@ namespace nde {
             cols = A.cols;
             mat.resize(rows);
             for (int i = 0; i < rows; ++i) {
-                mat(i) = new Vector<T>(cols);
-                for (int j = 0; j< cols; ++j)
-                        mat(i)->operator()(j) = A.mat(i)->operator()(j);
+                mat(i) = new Vector<T > (cols);
+                for (int j = 0; j < cols; ++j)
+                    mat(i)->operator()(j) = A.mat(i)->operator()(j);
             }
         }
 
@@ -46,10 +46,11 @@ namespace nde {
             cols = A.cols;
             mat.resize(rows);
             for (int i = 0; i < rows; ++i) {
-                mat(i) = new Vector<T>(cols);
-                for (int j = 0; j< cols; ++j)
-                        mat(i)->operator()(j) = A.mat(i)->operator()(j);
-            }        }
+                mat(i) = new Vector<T > (cols);
+                for (int j = 0; j < cols; ++j)
+                    mat(i)->operator()(j) = A.mat(i)->operator()(j);
+            }
+        }
 
         /* destructor */
         virtual ~Matrix() {
@@ -62,7 +63,7 @@ namespace nde {
         void fill(const T& value) {
             for (int i = 0; i < rows; ++i) {
                 for (int j = 0; j < cols; ++j)
-                    this->mat(i)(j) = value;
+                    this->operator()(i, j) = value;
             }
         }
 
@@ -120,7 +121,7 @@ namespace nde {
         Vector<T> operator*(const Vector<T>& s) const {
             Vector<T> x(this->numrows());
             for (int i = 0; i < this->numrows(); ++i)
-                x(i) = *mat(i)*s;
+                x(i) = *mat(i) * s;
             return x;
         }
 
@@ -164,7 +165,7 @@ namespace nde {
                     for (int i = j + 1; i < rows; ++i)
                         LU(i, j) -= LU.row(i).block(j - 1) * LU.col(j).block(j - 1);
                 }
-                
+
                 /* row permutation by the biggest one */
                 Vector<T> pcol = LU.col(j).block(j, rows - 1);
                 Vector<T> pbig = big.block(j, rows - 1);
@@ -189,7 +190,7 @@ namespace nde {
             Vector<T> y(rows);
             y(0) = b(p(0));
             for (int i = 1; i < rows; ++i)
-                y(i) = b(p(i)) - LU.row(i).block(i-1) * y.block(i-1);
+                y(i) = b(p(i)) - LU.row(i).block(i - 1) * y.block(i - 1);
 
             /* backwards substitution and solution */
             Vector<T> x(rows);

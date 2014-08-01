@@ -18,25 +18,22 @@ namespace nde {
                 const Vector<double>& x) {
 
             Vector<double> dx = x2 - x1;
-            Vector<double> d1 = x - x1;
-            Vector<double> d2 = x - x2;
-            r1 = d1.norm();
-            r2 = d2.norm();
+            double theta = atan2(dx(1), dx(0));
             length = dx.norm();
-            Vector<double> dz(2);
-            dz(0) = -dx(1);
-            dz(1) = dx(0);
 
-            double a1 = acos(-(r2 * r2 - r1 * r1 - length * length) / (2 * r1 * length));
-            double a2 = M_PI - acos(-(r1 * r1 - r2 * r2 - length * length) / (2 * r2 * length));
+            Vector<double> d1 = x - x1;
+            Vector<double> d1p(2);
+            d1p(0) = d1(0) * cos(theta) + d1(1) * sin(theta);
+            d1p(1) = -d1(0) * sin(theta) + d1(1) * cos(theta);
+            r1 = d1.norm();
+            angle1 = atan2(d1p(1), d1p(0));
 
-            if (dz * d1 > 0.0) {
-                angle1 = a1;
-                angle2 = a2;
-            } else {
-                angle1 = 2.0 * M_PI - a1;
-                angle2 = 2.0 * M_PI - a2;
-            }
+            Vector<double> d2 = x - x2;
+            Vector<double> d2p(2);
+            d2p(0) = d2(0) * cos(theta) + d2(1) * sin(theta);
+            d2p(1) = -d2(0) * sin(theta) + d2(1) * cos(theta);
+            r2 = d2.norm();
+            angle2 = atan2(d2p(1), d2p(0));
 
             Vector<double> xG(2); // global x axis.
             xG(0) = 1.0;
@@ -155,10 +152,7 @@ namespace nde {
         }
 
         double PointVortex2D_potential(Vector<double> x0, Vector<double> x) {
-            double angle = atan2(x(1) - x0(1), x(0) - x0(0));
-            if (angle < 0.0) angle = 2 * M_PI + angle;
-            return -angle / (2.0 * M_PI);
-            //return -atan2((x(1) - x0(1)) / (x(0) - x0(0))) / (2.0 * M_PI);
+            return -atan2(x(1) - x0(1),x(0) - x0(0)) / (2.0 * M_PI);
         }
 
         Vector<double> PointVortex2D_speed(Vector<double> x0, Vector<double> x) {

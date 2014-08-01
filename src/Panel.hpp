@@ -27,7 +27,10 @@ namespace nde {
         const Vector<double>& getDl() const;
         const double getLength() const;
         const Vector<double>& getMidPoint() const;
+        const Vector<double>& getControlPointIn() const;
+        const Vector<double>& getControlPointOut() const;
         const Vector<double>& getNormal() const;
+        const Vector<double>& getTangent() const;
 
     private:
         Vector<double> start_point;
@@ -35,7 +38,10 @@ namespace nde {
         Vector<double> dl;
         double length;
         Vector<double> mid_point;
+        Vector<double> control_point_in;
+        Vector<double> control_point_out;
         Vector<double> normal;
+        Vector<double> tangent;
         void setPanel2D();
     };
 
