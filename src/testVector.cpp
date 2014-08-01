@@ -152,163 +152,163 @@ int main(int narg, char** arg) {
 //    }
 //
 //
-//    /* Fluid Elements test */
-//    {
-//        cout << "/******************************************************/" << endl;
-//        cout << "Potential Elements Tests" << endl;
-//        cout << "/******************************************************/" << endl;
-//
-//        nde::Vector<double> x0(2);
-//        x0.fill(0.0);
-//
-//        nde::Vector<double> x1(2);
-//        x1(0) = 0.05 * cos(210. * M_PI / 180.);
-//        x1(1) = 0.05 * sin(210. * M_PI / 180.);
-//
-//        nde::Vector<double> x2(2);
-//
-//        x2(0) = 0.05 * cos(30. * M_PI / 180.);
-//        x2(1) = 0.05 * sin(30. * M_PI / 180.);
-//
-//        for (int i = 0; i < 8; ++i) {
-//            double angle = 30.0 + double(i) * 360. / 8.;
-//            nde::Vector<double> x(2);
-//            x(0) = 1.0 * cos(angle * M_PI / 180.);
-//            x(1) = 1.0 * sin(angle * M_PI / 180.);
-//            cout << "Potential Source, angle " << angle << " = " <<
-//                    nde::potential_flow::ConstantSource2D_potential(x1, x2, x) << endl;
-//        }
-//
-//        for (int i = 0; i < 8; ++i) {
-//
-//            double angle = 30.0 + double(i) * 360. / 8.;
-//            nde::Vector<double> x(2);
-//            x(0) = 1.0 * cos(angle * M_PI / 180.);
-//            x(1) = 1.0 * sin(angle * M_PI / 180.);
-//
-//            nde::Vector<double> v = nde::potential_flow::ConstantSource2D_speed(x1, x2, x);
-//            cout << "Speed Source, angle " << angle << " = " << v(0) << "," << v(1) << endl;
-//
-//            nde::Vector<double> xp = x;
-//            xp(0) = xp(0) + 0.001;
-//            nde::Vector<double> xm = x;
-//            xm(0) = xm(0) - 0.001;
-//
-//            double u = (nde::potential_flow::ConstantSource2D_potential(x1, x2, xp)
-//                    - nde::potential_flow::ConstantSource2D_potential(x1, x2, xm)) / 0.002;
-//
-//            xp(0) = x(0);
-//            xp(1) = x(1) + 0.001;
-//            xm(0) = x(0);
-//            xm(1) = x(1) - 0.001;
-//
-//            double w = (nde::potential_flow::ConstantSource2D_potential(x1, x2, xp)
-//                    - nde::potential_flow::ConstantSource2D_potential(x1, x2, xm)) / 0.002;
-//
-//            cout << "Speed Source Diff, angle " << angle << " = " << u << "," << w << endl;
-//
-//        }
-//
-//
-//        for (int i = 0; i < 8; ++i) {
-//
-//            double angle = 30.0 + double(i) * 360. / 8.;
-//            nde::Vector<double> x(2);
-//            x(0) = 1.0 * cos(angle * M_PI / 180.);
-//            x(1) = 1.0 * sin(angle * M_PI / 180.);
-//            cout << "Potential Doublet, angle " << angle << " = " <<
-//                    nde::potential_flow::ConstantDoublet2D_potential(x1, x2, x) << endl;
-//
-//        }
-//
-//        for (int i = 0; i < 8; ++i) {
-//            double angle = 30.0 + double(i) * 360. / 8.;
-//            nde::Vector<double> x(2);
-//            x(0) = 1.0 * cos(angle * M_PI / 180.);
-//            x(1) = 1.0 * sin(angle * M_PI / 180.);
-//            nde::Vector<double> v = nde::potential_flow::ConstantDoublet2D_speed(x1, x2, x);
-//            cout << "Speed Doublet, angle " << angle << " = " << v(0) << "," << v(1) << endl;
-//
-//            nde::Vector<double> xp = x;
-//            xp(0) = xp(0) + 0.001;
-//            nde::Vector<double> xm = x;
-//            xm(0) = xm(0) - 0.001;
-//
-//            double u = (nde::potential_flow::ConstantDoublet2D_potential(x1, x2, xp)
-//                    - nde::potential_flow::ConstantDoublet2D_potential(x1, x2, xm)) / 0.002;
-//
-//            xp(0) = x(0);
-//            xp(1) = x(1) + 0.001;
-//            xm(0) = x(0);
-//            xm(1) = x(1) - 0.001;
-//
-//            double w = (nde::potential_flow::ConstantDoublet2D_potential(x1, x2, xp)
-//                    - nde::potential_flow::ConstantDoublet2D_potential(x1, x2, xm)) / 0.002;
-//
-//            cout << "Speed Doublet Diff, angle " << angle << " = " << u << "," << w << endl;
-//
-//        }
-//
-//        for (int i = 0; i < 8; ++i) {
-//            double angle = 30.0 + double(i) * 360. / 8.;
-//            nde::Vector<double> x(2);
-//            x(0) = 1.0 * cos(angle * M_PI / 180.);
-//            x(1) = 1.0 * sin(angle * M_PI / 180.);
-//            cout << "Potential Doublet (Vortex), angle " << angle << " = " <<
-//                    nde::potential_flow::PointVortex2D_potential(x2, x) -
-//                    nde::potential_flow::PointVortex2D_potential(x1, x) << endl;
-//        }
-//
-//        for (int i = 0; i < 8; ++i) {
-//            double angle = 30.0 + double(i) * 360. / 8.;
-//            nde::Vector<double> x(2);
-//            x(0) = 1.0 * cos(angle * M_PI / 180.);
-//            x(1) = 1.0 * sin(angle * M_PI / 180.);
-//            nde::Vector<double> v = nde::potential_flow::PointVortex2D_speed(x2, x) -
-//                    nde::potential_flow::PointVortex2D_speed(x1, x);
-//            cout << "Speed Doublet (Vortex), angle " << angle << " = " << v(0) << "," << v(1) << endl;
-//        }
-//
-//        for (int i = 0; i < 8; ++i) {
-//            double angle = 30.0 + double(i) * 360. / 8.;
-//            nde::Vector<double> x(2);
-//            x(0) = 1.0 * cos(angle * M_PI / 180.);
-//            x(1) = 1.0 * sin(angle * M_PI / 180.);
-//            cout << "Potential Vortex, angle " << angle << " = " <<
-//                    nde::potential_flow::PointVortex2D_potential(x0, x) << endl;
-//        }
-//
-//        for (int i = 0; i < 8; ++i) {
-//
-//            double angle = 30.0 + double(i) * 360. / 8.;
-//            nde::Vector<double> x(2);
-//            x(0) = 1.0 * cos(angle * M_PI / 180.);
-//            x(1) = 1.0 * sin(angle * M_PI / 180.);
-//            nde::Vector<double> v = nde::potential_flow::PointVortex2D_speed(x0, x);
-//            cout << "Speed Vortex, angle " << angle << " = " << v(0) << "," << v(1) << endl;
-//
-//
-//            nde::Vector<double> xp = x;
-//            xp(0) = xp(0) + 0.001;
-//            nde::Vector<double> xm = x;
-//            xm(0) = xm(0) - 0.001;
-//            
-//            double u = (nde::potential_flow::PointVortex2D_potential(x0, xp)
-//                    - nde::potential_flow::PointVortex2D_potential(x0, xm)) / 0.002;
-//
-//            xp(0) = x(0);
-//            xp(1) = x(1) + 0.001;
-//            xm(0) = x(0);
-//            xm(1) = x(1) - 0.001;
-//
-//            double w = (nde::potential_flow::PointVortex2D_potential(x0, xp)
-//                    - nde::potential_flow::PointVortex2D_potential(x0, xm)) / 0.002;
-//
-//            cout << "Speed Vortex Diff, angle " << angle << " = " << u << "," << w << endl;
-//
-//        }
-//
-//    }
+    /* Fluid Elements test */
+    {
+        cout << "/******************************************************/" << endl;
+        cout << "Potential Elements Tests" << endl;
+        cout << "/******************************************************/" << endl;
+
+        nde::Vector<double> x0(2);
+        x0.fill(0.0);
+
+        nde::Vector<double> x1(2);
+        x1(0) = 0.05 * cos(210. * M_PI / 180.);
+        x1(1) = 0.05 * sin(210. * M_PI / 180.);
+
+        nde::Vector<double> x2(2);
+
+        x2(0) = 0.05 * cos(30. * M_PI / 180.);
+        x2(1) = 0.05 * sin(30. * M_PI / 180.);
+
+        for (int i = 0; i < 8; ++i) {
+            double angle = 30.0 + double(i) * 360. / 8.;
+            nde::Vector<double> x(2);
+            x(0) = 1.0 * cos(angle * M_PI / 180.);
+            x(1) = 1.0 * sin(angle * M_PI / 180.);
+            cout << "Potential Source, angle " << angle << " = " <<
+                    nde::potential_flow::ConstantSource2D_potential(x1, x2, x) << endl;
+        }
+
+        for (int i = 0; i < 8; ++i) {
+
+            double angle = 30.0 + double(i) * 360. / 8.;
+            nde::Vector<double> x(2);
+            x(0) = 1.0 * cos(angle * M_PI / 180.);
+            x(1) = 1.0 * sin(angle * M_PI / 180.);
+
+            nde::Vector<double> v = nde::potential_flow::ConstantSource2D_speed(x1, x2, x);
+            cout << "Speed Source, angle " << angle << " = " << v(0) << "," << v(1) << endl;
+
+            nde::Vector<double> xp = x;
+            xp(0) = xp(0) + 0.001;
+            nde::Vector<double> xm = x;
+            xm(0) = xm(0) - 0.001;
+
+            double u = (nde::potential_flow::ConstantSource2D_potential(x1, x2, xp)
+                    - nde::potential_flow::ConstantSource2D_potential(x1, x2, xm)) / 0.002;
+
+            xp(0) = x(0);
+            xp(1) = x(1) + 0.001;
+            xm(0) = x(0);
+            xm(1) = x(1) - 0.001;
+
+            double w = (nde::potential_flow::ConstantSource2D_potential(x1, x2, xp)
+                    - nde::potential_flow::ConstantSource2D_potential(x1, x2, xm)) / 0.002;
+
+            cout << "Speed Source Diff, angle " << angle << " = " << u << "," << w << endl;
+
+        }
+
+
+        for (int i = 0; i < 8; ++i) {
+
+            double angle = 30.0 + double(i) * 360. / 8.;
+            nde::Vector<double> x(2);
+            x(0) = 1.0 * cos(angle * M_PI / 180.);
+            x(1) = 1.0 * sin(angle * M_PI / 180.);
+            cout << "Potential Doublet, angle " << angle << " = " <<
+                    nde::potential_flow::ConstantDoublet2D_potential(x1, x2, x) << endl;
+
+        }
+
+        for (int i = 0; i < 8; ++i) {
+            double angle = 30.0 + double(i) * 360. / 8.;
+            nde::Vector<double> x(2);
+            x(0) = 1.0 * cos(angle * M_PI / 180.);
+            x(1) = 1.0 * sin(angle * M_PI / 180.);
+            nde::Vector<double> v = nde::potential_flow::ConstantDoublet2D_speed(x1, x2, x);
+            cout << "Speed Doublet, angle " << angle << " = " << v(0) << "," << v(1) << endl;
+
+            nde::Vector<double> xp = x;
+            xp(0) = xp(0) + 0.001;
+            nde::Vector<double> xm = x;
+            xm(0) = xm(0) - 0.001;
+
+            double u = (nde::potential_flow::ConstantDoublet2D_potential(x1, x2, xp)
+                    - nde::potential_flow::ConstantDoublet2D_potential(x1, x2, xm)) / 0.002;
+
+            xp(0) = x(0);
+            xp(1) = x(1) + 0.001;
+            xm(0) = x(0);
+            xm(1) = x(1) - 0.001;
+
+            double w = (nde::potential_flow::ConstantDoublet2D_potential(x1, x2, xp)
+                    - nde::potential_flow::ConstantDoublet2D_potential(x1, x2, xm)) / 0.002;
+
+            cout << "Speed Doublet Diff, angle " << angle << " = " << u << "," << w << endl;
+
+        }
+
+        for (int i = 0; i < 8; ++i) {
+            double angle = 30.0 + double(i) * 360. / 8.;
+            nde::Vector<double> x(2);
+            x(0) = 1.0 * cos(angle * M_PI / 180.);
+            x(1) = 1.0 * sin(angle * M_PI / 180.);
+            cout << "Potential Doublet (Vortex), angle " << angle << " = " <<
+                    nde::potential_flow::PointVortex2D_potential(x2, x) -
+                    nde::potential_flow::PointVortex2D_potential(x1, x) << endl;
+        }
+
+        for (int i = 0; i < 8; ++i) {
+            double angle = 30.0 + double(i) * 360. / 8.;
+            nde::Vector<double> x(2);
+            x(0) = 1.0 * cos(angle * M_PI / 180.);
+            x(1) = 1.0 * sin(angle * M_PI / 180.);
+            nde::Vector<double> v = nde::potential_flow::PointVortex2D_speed(x2, x) -
+                    nde::potential_flow::PointVortex2D_speed(x1, x);
+            cout << "Speed Doublet (Vortex), angle " << angle << " = " << v(0) << "," << v(1) << endl;
+        }
+
+        for (int i = 0; i < 8; ++i) {
+            double angle = 30.0 + double(i) * 360. / 8.;
+            nde::Vector<double> x(2);
+            x(0) = 1.0 * cos(angle * M_PI / 180.);
+            x(1) = 1.0 * sin(angle * M_PI / 180.);
+            cout << "Potential Vortex, angle " << angle << " = " <<
+                    nde::potential_flow::PointVortex2D_potential(x0, x) << endl;
+        }
+
+        for (int i = 0; i < 8; ++i) {
+
+            double angle = 30.0 + double(i) * 360. / 8.;
+            nde::Vector<double> x(2);
+            x(0) = 1.0 * cos(angle * M_PI / 180.);
+            x(1) = 1.0 * sin(angle * M_PI / 180.);
+            nde::Vector<double> v = nde::potential_flow::PointVortex2D_speed(x0, x);
+            cout << "Speed Vortex, angle " << angle << " = " << v(0) << "," << v(1) << endl;
+
+
+            nde::Vector<double> xp = x;
+            xp(0) = xp(0) + 0.001;
+            nde::Vector<double> xm = x;
+            xm(0) = xm(0) - 0.001;
+            
+            double u = (nde::potential_flow::PointVortex2D_potential(x0, xp)
+                    - nde::potential_flow::PointVortex2D_potential(x0, xm)) / 0.002;
+
+            xp(0) = x(0);
+            xp(1) = x(1) + 0.001;
+            xm(0) = x(0);
+            xm(1) = x(1) - 0.001;
+
+            double w = (nde::potential_flow::PointVortex2D_potential(x0, xp)
+                    - nde::potential_flow::PointVortex2D_potential(x0, xm)) / 0.002;
+
+            cout << "Speed Vortex Diff, angle " << angle << " = " << u << "," << w << endl;
+
+        }
+
+    }
 
 
 
@@ -320,11 +320,9 @@ int main(int narg, char** arg) {
 
         nde::NacaAirfoil naca_airfoil(1.0, 0, 0, 1, 0);
         nde::Airfoil airfoil(naca_airfoil);
-        nde::Vector<nde::Panel2D> panels = airfoil.getPanels(0.2);
+        nde::Vector<nde::Panel2D> panels = airfoil.getPanels(0.02);
 
-        nde::AerodynamicBody2D body2D(
-                1.0, panels, airfoil.getTralingEdgeCoordinates(),
-                1.0, 20.0 * M_PI / 180.0);
+        nde::AerodynamicBody2D body2D(1.0, panels, 5.0 * M_PI / 180.0);
 
         body2D.calcPotentialFlow();
 

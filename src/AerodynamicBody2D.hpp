@@ -19,8 +19,6 @@ namespace nde {
         AerodynamicBody2D(
                 double chord_in,
                 const Vector<Panel2D>& panels_in,
-                const Vector<double>& wake_coordinates_in,
-                double air_speed_in,
                 double angle_attack_in);
         void calcPotentialFlow();
         double getPotential(const Vector<double>& x) const;
@@ -31,7 +29,6 @@ namespace nde {
         double chord;
         double angle_attack;
         Vector<Panel2D> panels;
-        Vector<double> wake_coordinates;
         Vector<double> incident_flow;
         Vector<double> sources;
         Vector<double> doublets;

@@ -14,13 +14,11 @@ namespace nde {
     AerodynamicBody2D::AerodynamicBody2D(
             double chord_in,
             const Vector<Panel2D>& panels_in,
-            const Vector<double>& wake_coordinates_in,
-            double air_speed_in,
             double angle_attack_in)
-    : chord(chord_in), panels(panels_in), wake_coordinates(wake_coordinates_in), angle_attack(angle_attack_in) {
+    : chord(chord_in), panels(panels_in), angle_attack(angle_attack_in) {
         incident_flow.resize(2);
-        incident_flow(0) = air_speed_in * cos(angle_attack);
-        incident_flow(1) = air_speed_in * sin(angle_attack);
+        incident_flow(0) = cos(angle_attack);
+        incident_flow(1) = sin(angle_attack);
     }
 
     void AerodynamicBody2D::calcPotentialFlow() {
@@ -91,8 +89,8 @@ namespace nde {
 
                 }
 
-                w(i) = 0.15916 * atan((panels(i).getMidPoint()(1) - wake_coordinates(1)) /
-                        (panels(i).getMidPoint()(0) - wake_coordinates(0)));
+                w(i) = 0.15916 * atan((panels(i).getMidPoint()(1) - panels(0).getStartPoint()(1)) /
+                        (panels(i).getMidPoint()(0) - panels(0).getStartPoint()(0)));
 
             }
 
@@ -162,8 +160,8 @@ namespace nde {
             p(i) = incidentFlowPotential(panels(i).getControlPointIn());
 
             // wake
-            w(i) = -potential_flow::PointVortex2D_potential(
-                    wake_coordinates,
+            w(i) = potential_flow::PointVortex2D_potential(
+                    panels(0).getStartPoint(),
                     panels(i).getControlPointIn());
 
             for (int j = 0; j < num_panels; ++j) {
@@ -201,7 +199,7 @@ namespace nde {
         }
 
 
-        Vector<double> rhs = b * sources; // * (-1.0);
+        Vector<double> rhs = b * sources * (-1.0);
         for (int i = 0; i < num_panels; ++i) {
             std::cout << "rhs(" << i << ")=" << rhs(i) << std::endl;
         }
@@ -246,7 +244,7 @@ namespace nde {
                 x);
 
         phi = phi + wake * potential_flow::PointVortex2D_potential(
-                wake_coordinates, x);
+                panels(0).getStartPoint(), x);
 
         return phi + incidentFlowPotential(x);
 
@@ -268,7 +266,7 @@ namespace nde {
                 x) * sources(i);
 
         u = u + potential_flow::PointVortex2D_speed(
-                wake_coordinates, x) * wake;
+                panels(0).getStartPoint(), x) * wake;
 
         return u + incident_flow;
 
@@ -282,7 +280,7 @@ namespace nde {
         for (int i = 0; i < panels.size(); ++i) {
             Vector<double> v = getSpeed(panels(i).getControlPointOut());
             cf_global = cf_global + panels(i).getNormal()
-                    * ((1.0 - pow(v.norm() / incident_flow.norm(), 2))
+                    * ((1.0 - pow(v.norm() , 2))
                     * panels(i).getLength() / chord);
         }
 

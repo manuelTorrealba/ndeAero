@@ -152,7 +152,7 @@ namespace nde {
         }
 
         double PointVortex2D_potential(Vector<double> x0, Vector<double> x) {
-            return -atan2(x(1) - x0(1),x(0) - x0(0)) / (2.0 * M_PI);
+            return -atan((x(1) - x0(1)) / (x(0) - x0(0))) / (2.0 * M_PI);
         }
 
         Vector<double> PointVortex2D_speed(Vector<double> x0, Vector<double> x) {
