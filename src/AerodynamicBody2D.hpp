@@ -32,6 +32,7 @@ namespace nde {
         Vector<double> incident_flow;
         Vector<double> sources;
         Vector<double> doublets;
+        Vector<double> vortexes;
         double wake;
         
         double incidentFlowPotential(Vector<double> x) const;

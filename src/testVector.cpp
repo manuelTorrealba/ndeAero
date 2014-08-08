@@ -320,28 +320,28 @@ int main(int narg, char** arg) {
 
         nde::NacaAirfoil naca_airfoil(1.0, 0, 0, 1, 0);
         nde::Airfoil airfoil(naca_airfoil);
-        nde::Vector<nde::Panel2D> panels = airfoil.getPanels(0.02);
+        nde::Vector<nde::Panel2D> panels = airfoil.getPanels(0.05);
 
         nde::AerodynamicBody2D body2D(1.0, panels, 5.0 * M_PI / 180.0);
 
         body2D.calcPotentialFlow();
 
-        for (int i = 0; i < panels.size(); ++i) {
-            nde::Vector<double> x = panels(i).getMidPoint();
-            cout << "Panel mid point " << i << " = " << x(0) << "," << x(1) << endl;
-        }
+//        for (int i = 0; i < panels.size(); ++i) {
+//            nde::Vector<double> x = panels(i).getMidPoint();
+//            cout << "Panel mid point " << i << " = " << x(0) << "," << x(1) << endl;
+//        }
 
         for (int i = 0; i < panels.size(); ++i) {
             double phi_control = body2D.getPotential(panels(i).getControlPointIn());
             cout << "Panel mid point (" << i + 1 << ") = " << panels(i).getMidPoint()(0)
                     << "," << panels(i).getMidPoint()(1) << endl;
-            cout << "Potential control point (" << i + 1 << ") = " << phi_control << endl;
-            nde::Vector<double> u_control = body2D.getSpeed(panels(i).getControlPointOut());
-            cout << "Speed control point (" << i + 1 << ") = " << u_control(0)
-                    << "," << u_control(1) << ";;" << u_control.norm() << endl;
-            cout << "Speed parallel condition (" << i + 1 << ") = "
-                    << u_control * panels(i).getTangent() << "::"
-                    << u_control * panels(i).getNormal() << endl;
+//            cout << "Potential control point (" << i + 1 << ") = " << phi_control << endl;
+//            nde::Vector<double> u_control = body2D.getSpeed(panels(i).getControlPointOut());
+//            cout << "Speed control point (" << i + 1 << ") = " << u_control(0)
+//                    << "," << u_control(1) << ";;" << u_control.norm() << endl;
+//            cout << "Speed parallel condition (" << i + 1 << ") = "
+//                    << u_control * panels(i).getTangent() << "::"
+//                    << u_control * panels(i).getNormal() << endl;
         }
 
         nde::Vector<double> cf = body2D.calcForceCoefficients();

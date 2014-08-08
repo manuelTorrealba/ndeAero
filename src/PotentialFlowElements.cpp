@@ -18,7 +18,7 @@ namespace nde {
                 const Vector<double>& x) {
 
             Vector<double> dx = x2 - x1;
-            double theta = atan2(dx(1), dx(0));
+            theta = atan2(dx(1), dx(0));
             length = dx.norm();
 
             Vector<double> d1 = x - x1;
@@ -34,21 +34,6 @@ namespace nde {
             d2p(1) = -d2(0) * sin(theta) + d2(1) * cos(theta);
             r2 = d2.norm();
             angle2 = atan2(d2p(1), d2p(0));
-
-            Vector<double> xG(2); // global x axis.
-            xG(0) = 1.0;
-            xG(1) = 0.0;
-            Vector<double> xL = x2 - x1; // local x axis.
-            xL = xL / xL.norm();
-
-            double sgn;
-            if (xL(1) >= 0.0)
-                sgn = 1.0;
-            else
-                sgn = -1.0;
-
-            cosAngleLG = xG * xL;
-            sinAngleLG = sgn * sqrt(1.0 - cosAngleLG * cosAngleLG);
 
         }
 
@@ -76,8 +61,8 @@ namespace nde {
 
             Vector<double> u_g(2);
 
-            u_g(0) = u_l(0) * cosAngleLG - u_l(1) * sinAngleLG;
-            u_g(1) = u_l(0) * sinAngleLG + u_l(1) * cosAngleLG;
+            u_g(0) = u_l(0) * cos(theta) - u_l(1) * sin(theta);
+            u_g(1) = u_l(0) * sin(theta) + u_l(1) * cos(theta);
 
             return u_g;
 
@@ -146,6 +131,27 @@ namespace nde {
             Vector<double> u(2);
             u(0) = -1.0 / (2.0 * M_PI)*(sin(angle1) / r1 - sin(angle2) / r2);
             u(1) = 1.0 / (2.0 * M_PI)*(cos(angle1) / r1 - cos(angle2) / r2);
+
+            return Loc.fromLocalToGlobalCoordinates(u);
+
+        }
+
+        double ConstantVortex2D_potential(Vector<double> x1, Vector<double> x2, Vector<double> x) {
+            return 0.0;
+        }
+
+        Vector<double> ConstantVortex2D_speed(Vector<double> x1, Vector<double> x2, Vector<double> x) {
+
+            PointLocationPanel2D Loc(x1, x2, x);
+
+            double r1 = Loc.getR1();
+            double r2 = Loc.getR2();
+            double angle1 = Loc.getAngle1();
+            double angle2 = Loc.getAngle2();
+
+            Vector<double> u(2);
+            u(0) = 1.0 / (2.0 * M_PI) * (angle2 - angle1);
+            u(1) = 1.0 / (2.0 * M_PI) * log(r2 / r1);
 
             return Loc.fromLocalToGlobalCoordinates(u);
 
