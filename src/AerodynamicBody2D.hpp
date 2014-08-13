@@ -16,7 +16,8 @@ namespace nde {
 
     enum PanelMethodType {
         DIRICHLET_CONSTANT_DOUBLETS = 1,
-        NEUMANN_CONSTANT_SOURCES_AND_VORTEX = 2
+        DIRICHLET_CONSTANT_SOURCES_AND_DOUBLETS = 2,
+        NEUMANN_CONSTANT_SOURCES_AND_VORTEX = 3
     };
     
     class AerodynamicBody2D {

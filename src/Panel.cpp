@@ -107,6 +107,34 @@ namespace nde {
 
     }
 
+    double Panel2D::calcConstantSourcePotencial(const Vector<double>& x) const {
+
+        double r1 = (x - start_point).norm();
+        double r2 = (x - end_point).norm();
+        Vector<double> xl = B*x;
+        double theta1 = atan2(xl(1) - start_point_local(1), xl(0) - start_point_local(0));
+        double theta2 = atan2(xl(1) - end_point_local(1), xl(0) - end_point_local(0));
+
+        double tol = 1.0e-6 * length;
+
+        double t1;
+        if (r1 > tol)
+            t1 = 2.0 * r1 * cos(theta1) * log(r1);
+        else
+            t1 = 0.0;
+
+        double t2;
+        if (r2 > tol)
+            t2 = -2.0 * r2 * cos(theta2) * log(r2);
+        else
+            t2 = 0.0;
+
+        double t3 = 2.0 * r1 * sin(theta1)*(theta2 - theta1);
+
+        return (t1 + t2 + t3) / (4.0 * M_PI);
+
+    }
+
     Vector<double> Panel2D::calcConstantDoubletSpeed(const Vector<double>& x) const {
 
         Vector<double> u(2);

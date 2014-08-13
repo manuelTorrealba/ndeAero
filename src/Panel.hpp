@@ -34,10 +34,11 @@ namespace nde {
         Vector<double> getTangent() const;
 
         double calcConstantDoubletPotencial(const Vector<double>& x) const;
-        
+        double calcConstantSourcePotencial(const Vector<double>& x) const;
+
         Vector<double> calcConstantSourceSpeed(const Vector<double>& x) const;
         Vector<double> calcConstantDoubletSpeed(const Vector<double>& x) const;
-        Vector<double> Panel2D::calcConstantVortexSpeed(const Vector<double>& x) const;
+        Vector<double> calcConstantVortexSpeed(const Vector<double>& x) const;
     
     private:
         Vector<double> start_point;

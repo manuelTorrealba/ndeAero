@@ -319,17 +319,21 @@ int main(int narg, char** arg) {
 
     nde::NacaAirfoil naca_airfoil(1.0, 0, 0, 1, 0);
     nde::Airfoil airfoil(naca_airfoil);
-    nde::Vector<nde::Panel2D> panels = airfoil.getPanels(0.1);
+    nde::Vector<nde::Panel2D> panels = airfoil.getPanels(0.01);
 
     nde::AerodynamicBody2D body2D(1.0, panels, 5.0 * M_PI / 180.0);
 
     body2D.calcPotentialFlow(nde::DIRICHLET_CONSTANT_DOUBLETS);
     nde::Vector<double> F1 = body2D.getForceCoeffs();
-    cout << "Force Dirichlet = (" << F1(0) << ", " << F1(1) << ")" << endl;
+    cout << "Force Dirichlet 1 = (" << F1(0) << ", " << F1(1) << ")" << endl;
+
+    body2D.calcPotentialFlow(nde::DIRICHLET_CONSTANT_SOURCES_AND_DOUBLETS);
+    nde::Vector<double> F2 = body2D.getForceCoeffs();
+    cout<< "Force Dirichlet 2 = ("<< F2(0) << "," << F2(1) << ")" << endl;
 
     body2D.calcPotentialFlow(nde::NEUMANN_CONSTANT_SOURCES_AND_VORTEX);
-    nde::Vector<double> F2 = body2D.getForceCoeffs();
-    cout<< "Force Neumann = ("<< F2(0) << "," << F2(1) << ")" << endl;
+    nde::Vector<double> F3 = body2D.getForceCoeffs();
+    cout<< "Force Neumann = ("<< F3(0) << "," << F3(1) << ")" << endl;
 
     return 0;
 
