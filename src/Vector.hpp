@@ -43,9 +43,9 @@ namespace nde {
         }
 
         void fill(T value) {
-            for (int i=0; i<dim; ++i) *(x+i) = value;
+            for (int i = 0; i < dim; ++i) *(x + i) = value;
         }
-        
+
         void resize(int n) {
             if (dim > 0) std::free(x);
             dim = n;
@@ -114,7 +114,7 @@ namespace nde {
         double norm() const {
             return std::sqrt((*this)*(*this));
         }
-        
+
         /* change the position of two elements in the vector */
         void swapElements(int i_1, int i_2) {
             T e_1 = *(x + i_1);
@@ -134,13 +134,13 @@ namespace nde {
         int biggestAbsIndex() const {
             int i = 0;
             for (int j = 1; j < dim; ++j)
-                if (std::abs(*(x + j))>std::abs(*(x + i))) i = j;
+                if (std::abs(*(x + j)) > std::abs(*(x + i))) i = j;
             return i;
         }
 
         virtual ~Vector() {
             //std::cout << "Exterminate Vector!" << std::endl;
-            std::free(x);
+            if (dim > 0) std::free(x);
         }
 
     private:

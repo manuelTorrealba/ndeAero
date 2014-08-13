@@ -97,26 +97,11 @@ namespace nde {
 
         }
 
-        Vector<double> ConstantSource2D_speed(Vector<double> x1, Vector<double> x2, Vector<double> x) {
-
-            PointLocationPanel2D Loc(x1, x2, x);
-
-            double r1 = Loc.getR1();
-            double r2 = Loc.getR2();
-            double angle1 = Loc.getAngle1();
-            double angle2 = Loc.getAngle2();
-
-            Vector<double> u(2);
-            u(0) = 1.0 / (2.0 * M_PI) * log(r1 / r2);
-            u(1) = 1.0 / (2.0 * M_PI) * (angle2 - angle1);
-
-            return Loc.fromLocalToGlobalCoordinates(u);
-
-        }
-
         double ConstantDoublet2D_potential(Vector<double> x1, Vector<double> x2, Vector<double> x) {
+            
             PointLocationPanel2D Loc(x1, x2, x);
             return -(Loc.getAngle2() - Loc.getAngle1()) / (2.0 * M_PI);
+            
         }
 
         Vector<double> ConstantDoublet2D_speed(Vector<double> x1, Vector<double> x2, Vector<double> x) {
@@ -129,36 +114,30 @@ namespace nde {
             double angle2 = Loc.getAngle2();
 
             Vector<double> u(2);
-            u(0) = -1.0 / (2.0 * M_PI)*(sin(angle1) / r1 - sin(angle2) / r2);
-            u(1) = 1.0 / (2.0 * M_PI)*(cos(angle1) / r1 - cos(angle2) / r2);
+            u(0) = 1.0 / (2.0 * M_PI)*(sin(angle1) / r1 - sin(angle2) / r2);
+            u(1) = -1.0 / (2.0 * M_PI)*(cos(angle1) / r1 - cos(angle2) / r2);
 
             return Loc.fromLocalToGlobalCoordinates(u);
 
         }
 
         double ConstantVortex2D_potential(Vector<double> x1, Vector<double> x2, Vector<double> x) {
-            return 0.0;
-        }
-
-        Vector<double> ConstantVortex2D_speed(Vector<double> x1, Vector<double> x2, Vector<double> x) {
 
             PointLocationPanel2D Loc(x1, x2, x);
-
+            double length = Loc.getLength();
             double r1 = Loc.getR1();
             double r2 = Loc.getR2();
             double angle1 = Loc.getAngle1();
             double angle2 = Loc.getAngle2();
 
-            Vector<double> u(2);
-            u(0) = 1.0 / (2.0 * M_PI) * (angle2 - angle1);
-            u(1) = 1.0 / (2.0 * M_PI) * log(r2 / r1);
-
-            return Loc.fromLocalToGlobalCoordinates(u);
+            return -1.0 / (2.0 * M_PI) * (angle1 * r1 * cos(angle1)
+                    - angle2 * r2 * cos(angle2)
+                    + r1 * sin(angle1) * log(r1 / r2));
 
         }
 
         double PointVortex2D_potential(Vector<double> x0, Vector<double> x) {
-            return -atan((x(1) - x0(1)) / (x(0) - x0(0))) / (2.0 * M_PI);
+            return -atan((x(1) - x0(1))/(x(0) - x0(0))) / (2.0 * M_PI);
         }
 
         Vector<double> PointVortex2D_speed(Vector<double> x0, Vector<double> x) {
@@ -177,4 +156,3 @@ namespace nde {
     }
 
 }
-

@@ -41,6 +41,14 @@ namespace nde {
             }
         }
 
+        void resize(int numrows, int numcols) {
+            rows = numrows;
+            cols = numcols;
+            mat.resize(rows);
+            for (int i = 0; i < rows; ++i)
+                mat(i) = new Vector<T > (cols);
+        }
+
         Matrix<T>& operator=(const Matrix<T>& A) {
             rows = A.rows;
             cols = A.cols;

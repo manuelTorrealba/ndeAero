@@ -28,6 +28,7 @@ namespace nde {
     }
 
     void Panel2D::setPanel2D() {
+
         dl = end_point - start_point;
         length = dl.norm();
         tangent = dl / length;
@@ -36,52 +37,122 @@ namespace nde {
         normal(0) = -tangent(1);
         normal(1) = tangent(0);
 
+        double theta = atan2(tangent(1), tangent(0));
+        B.resize(2, 2);
+        B(0, 0) = cos(theta);
+        B(0, 1) = sin(theta);
+        B(1, 0) = -sin(theta);
+        B(1, 1) = cos(theta);
+
+        start_point_local = B*start_point;
+        end_point_local = B*end_point;
+
         control_point_in = mid_point - normal * (length * 1.0e-4);
         control_point_out = mid_point + normal * (length * 1.0e-4);
+
     }
 
-    const Vector<double>& Panel2D::getStartPoint() const {
+    Vector<double> Panel2D::getStartPoint() const {
         return start_point;
     }
 
-    const Vector<double>& Panel2D::getEndPoint() const {
+    Vector<double> Panel2D::getEndPoint() const {
         return end_point;
     }
 
-    const double Panel2D::getDx() const {
+    double Panel2D::getDx() const {
         return dl(0);
     }
 
-    const double Panel2D::getDz() const {
+    double Panel2D::getDz() const {
         return dl(1);
     }
 
-    const Vector<double>& Panel2D::getDl() const {
+    Vector<double> Panel2D::getDl() const {
         return dl;
     }
 
-    const double Panel2D::getLength() const {
+    double Panel2D::getLength() const {
         return length;
     }
 
-    const Vector<double>& Panel2D::getMidPoint() const {
+    Vector<double> Panel2D::getMidPoint() const {
         return mid_point;
     }
 
-    const Vector<double>& Panel2D::getControlPointIn() const {
+    Vector<double> Panel2D::getControlPointIn() const {
         return control_point_in;
     }
 
-    const Vector<double>& Panel2D::getControlPointOut() const {
+    Vector<double> Panel2D::getControlPointOut() const {
         return control_point_out;
     }
 
-    const Vector<double>& Panel2D::getNormal() const {
+    Vector<double> Panel2D::getNormal() const {
         return normal;
     }
 
-    const Vector<double>& Panel2D::getTangent() const {
+    Vector<double> Panel2D::getTangent() const {
         return tangent;
     }
+
+    double Panel2D::calcConstantDoubletPotencial(const Vector<double>& x) const {
+
+        Vector<double> xl = B*x;
+
+        double theta1 = atan2(xl(1) - start_point_local(1), xl(0) - start_point_local(0));
+        double theta2 = atan2(xl(1) - end_point_local(1), xl(0) - end_point_local(0));
+
+        return -(theta2 - theta1) / (2.0 * M_PI);
+
+    }
+
+    Vector<double> Panel2D::calcConstantDoubletSpeed(const Vector<double>& x) const {
+
+        Vector<double> u(2);
+        Vector<double> r1 = x - start_point;
+        Vector<double> r2 = x - end_point;
+        double r1sqr = r1.norm() * r1.norm();
+        double r2sqr = r2.norm() * r2.norm();
+
+        u(0) = 1.0 / (2.0 * M_PI)* (r2(1) / r2sqr - r1(1) / r1sqr);
+        u(1) = -1.0 / (2.0 * M_PI)* (r2(0) / r2sqr - r1(0) / r1sqr);
+
+        return u;
+
+    }
+
+    Vector<double> Panel2D::calcConstantSourceSpeed(const Vector<double>& x) const {
+
+        Vector<double> xl = B*x;
+        double theta1 = atan2(xl(1) - start_point_local(1), xl(0) - start_point_local(0));
+        double theta2 = atan2(xl(1) - end_point_local(1), xl(0) - end_point_local(0));
+        Vector<double> r1 = x - start_point;
+        Vector<double> r2 = x - end_point;
+
+        Vector<double> u(2);
+        u(0) = 1.0 / (2.0 * M_PI) * log(r1.norm() / r2.norm());
+        u(1) = 1.0 / (2.0 * M_PI) * (theta2 - theta1);
+
+        return B.solve(u); //return in global coordinates
+
+    }
+
+    Vector<double> Panel2D::calcConstantVortexSpeed(const Vector<double>& x) const {
+
+        Vector<double> xl = B*x;
+        double theta1 = atan2(xl(1) - start_point_local(1), xl(0) - start_point_local(0));
+        double theta2 = atan2(xl(1) - end_point_local(1), xl(0) - end_point_local(0));
+        Vector<double> r1 = x - start_point;
+        Vector<double> r2 = x - end_point;
+
+        Vector<double> u(2);
+        u(0) = 1.0 / (2.0 * M_PI) * (theta2 - theta1);
+        u(1) = 1.0 / (2.0 * M_PI) * log(r2.norm() / r1.norm());
+
+        return B.solve(u); //return in global coordinates
+
+    }
+
 
 }
