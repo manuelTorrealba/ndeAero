@@ -329,11 +329,11 @@ int main(int narg, char** arg) {
 
     body2D.calcPotentialFlow(nde::DIRICHLET_CONSTANT_SOURCES_AND_DOUBLETS);
     nde::Vector<double> F2 = body2D.getForceCoeffs();
-    cout<< "Force Dirichlet 2 = ("<< F2(0) << "," << F2(1) << ")" << endl;
+    cout << "Force Dirichlet 2 = (" << F2(0) << "," << F2(1) << ")" << endl;
 
     body2D.calcPotentialFlow(nde::NEUMANN_CONSTANT_SOURCES_AND_VORTEX);
     nde::Vector<double> F3 = body2D.getForceCoeffs();
-    cout<< "Force Neumann = ("<< F3(0) << "," << F3(1) << ")" << endl;
+    cout << "Force Neumann = (" << F3(0) << "," << F3(1) << ")" << endl;
 
     return 0;
 
