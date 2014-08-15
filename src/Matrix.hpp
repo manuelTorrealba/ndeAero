@@ -56,8 +56,9 @@ namespace nde {
             for (int i = 0; i < rows; ++i) {
                 mat(i) = new Vector<T > (cols);
                 for (int j = 0; j < cols; ++j)
-                    mat(i)->operator()(j) = A.mat(i)->operator()(j);
+                    mat(i)->operator()(j) = A(i,j);
             }
+            return *this;
         }
 
         /* destructor */
@@ -77,7 +78,7 @@ namespace nde {
 
         /* access an element */
         T operator()(int i, int j) const {
-            return mat(i)(j);
+            return mat(i)->operator()(j);
         }
 
         /* modify an element */

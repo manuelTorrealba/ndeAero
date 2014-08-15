@@ -143,6 +143,14 @@ namespace nde {
             if (dim > 0) std::free(x);
         }
 
+        const T* begin() const {
+            return x;
+        }
+
+        const T* end() const {
+            return x+dim;
+        }
+        
     private:
         T* x;
         int dim;
