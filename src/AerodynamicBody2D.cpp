@@ -6,7 +6,6 @@
  */
 
 #include"AerodynamicBody2D.hpp"
-#include"PotentialFlowElements.hpp"
 #include"Matrix.hpp"
 
 namespace nde {
