@@ -8,6 +8,8 @@
 #include"AerodynamicBody2D.hpp"
 #include"Matrix.hpp"
 
+#include<cmath>
+
 namespace nde {
 
     AerodynamicBody2D::AerodynamicBody2D(

@@ -12,6 +12,7 @@
 #include"Vector.hpp"
 
 #include<iostream>
+#include<cmath>
 
 namespace nde {
 
