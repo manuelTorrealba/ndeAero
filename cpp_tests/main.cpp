@@ -6,7 +6,6 @@
 
 #include<iostream>
 
-
 /* nde: numerical design engineering */
 
 

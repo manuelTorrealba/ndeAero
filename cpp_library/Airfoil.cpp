@@ -1,6 +1,6 @@
 /* 
  * File:   Airfoil.cpp
- * Author: root
+ * Author: kenobi
  *
  * Created on July 23, 2014, 12:51 PM
  */
@@ -43,13 +43,6 @@ namespace nde {
 
         }
 
-        return x;
-    }
-
-    Vector<double> Airfoil::getTralingEdgeCoordinates() const {
-        Vector<double> x(2);
-        x(0) = naca_airfoil.chord;
-        x(1) = 0.0;
         return x;
     }
 

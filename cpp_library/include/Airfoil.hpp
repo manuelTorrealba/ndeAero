@@ -1,6 +1,6 @@
 /* 
  * File:   Airfoil.hpp
- * Author: root
+ * Author: kenobi
  *
  * Created on July 23, 2014, 12:51 PM
  */
@@ -10,6 +10,8 @@
 
 #include"Vector.hpp"
 #include"Panel.hpp"
+
+#include<cmath>
 
 namespace nde {
 
@@ -57,7 +59,7 @@ namespace nde {
         double thickness(double x) const {
             double t = (double(naca3)*10. + double(naca4)) / 100.;
             double h = x / chord;
-            double y = t / 0.2 * (0.2969 * sqrt(h) - 0.1260 * h
+            double y = t / 0.2 * (0.2969 * std::sqrt(h) - 0.1260 * h
                     - 0.3516 * h * h + 0.2843 * h * h * h
                     - 0.1036 * h * h * h * h);
             //last coefficient modified from -0.1015 to -0.1036
@@ -73,7 +75,10 @@ namespace nde {
     public:
         Airfoil(const NacaAirfoil& naca_airfoil_in);
         Vector<Panel2D > getPanels(double density) const;
-        Vector<double> getTralingEdgeCoordinates() const;
+        double getChord() const;
+        double getPointBottom(double x) const;
+        double getPointTop(double x) const;
+
     private:
         NacaAirfoil naca_airfoil;
     };
