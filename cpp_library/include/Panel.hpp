@@ -66,6 +66,13 @@ public:
 
 	void setPoints(const Vector<double>& x1_in, const Vector<double>& x2_in,
 			const Vector<double>& x3_in, const Vector<double>& x4_in);
+
+private:
+	Vector<double> x1;
+	Vector<double> x2;
+	Vector<double> x3;
+	Vector<double> x4;
+
 };
 
 }
