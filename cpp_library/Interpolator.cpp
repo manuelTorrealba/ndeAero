@@ -44,7 +44,7 @@ namespace nde {
     /**
      * Interpolates the spline value for the a given abscissas "x"
      */
-    double Interpolator1D::calcValue(double x) const {
+    double Interpolator1D::operator()(double x) const {
 
         // This will be the returned value.
         // Initialize it to zero.

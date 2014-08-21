@@ -56,15 +56,15 @@ int main(int narg, char** arg) {
 
         nde::Interpolator1D lin_interp(x, y, nde::LINEAR);
         
-        cout << "interpolation at 0.5 = " << lin_interp.calcValue(0.5) << endl;
-        cout << "interpolation at 2.5 = " << lin_interp.calcValue(2.5) << endl;
-        cout << "interpolation at 3.5 = " << lin_interp.calcValue(3.5) << endl;
+        cout << "interpolation at 0.5 = " << lin_interp(0.5) << endl;
+        cout << "interpolation at 2.5 = " << lin_interp(2.5) << endl;
+        cout << "interpolation at 3.5 = " << lin_interp(3.5) << endl;
 
         nde::Interpolator1D spln_interp(x, y, nde::SPLINE_MONOTONE);
         
-        cout << "interpolation at 0.5 = " << spln_interp.calcValue(0.5) << endl;
-        cout << "interpolation at 2.5 = " << spln_interp.calcValue(2.5) << endl;
-        cout << "interpolation at 3.5 = " << spln_interp.calcValue(3.5) << endl;
+        cout << "interpolation at 0.5 = " << spln_interp(0.5) << endl;
+        cout << "interpolation at 2.5 = " << spln_interp(2.5) << endl;
+        cout << "interpolation at 3.5 = " << spln_interp(3.5) << endl;
         
     }
 

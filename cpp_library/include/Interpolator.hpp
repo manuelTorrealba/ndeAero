@@ -34,7 +34,7 @@ namespace nde {
                 Interpolate main function.
                 @param x	: coordinate to interpolate to.
          */
-        double calcValue(double x) const;
+        double operator()(double x) const;
 
     protected:
         InterpolationType interpolation_type; /** < interpolation type	*/

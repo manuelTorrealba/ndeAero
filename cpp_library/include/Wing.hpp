@@ -26,6 +26,7 @@ public:
 
 	double getSurface() const;
 	double getMeanChord() const;
+	Vector<double> getPoint(double x_unit, double y_unit, int top_bottom) const;
 
 private:
 	Airfoil airfoil_root;
@@ -34,6 +35,10 @@ private:
 	double dihedral_angle;
 	double twist_angle;
 	double swept_angle;
+
+	Vector<double> getPointOnWingPlane(double x_unit, double y_unit) const;
+	double getAirfoilTop(double x_unit, double y_unit) const;
+	double getAirfoilBottom(double x_unit, double y_unit) const;
 
 };
 
