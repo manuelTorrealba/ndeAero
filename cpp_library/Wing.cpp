@@ -27,7 +27,8 @@ Vector<Panel3D> Wing::getPanels(double density_x, double density_y) const {
 	double dx = 1.0 / double(num_panels_chord);
 	double dy = 1.0 / double(num_panels_span);
 
-	Vector<Panel3D> z(num_panels_chord * num_panels_span * 4);
+	int N = num_panels_chord * num_panels_span;
+	Vector<Panel3D> z(4 * N);
 
 	for (int i = 0; i < num_panels_chord; ++i) {
 
@@ -40,20 +41,24 @@ Vector<Panel3D> Wing::getPanels(double density_x, double density_y) const {
 			double yi1 = dy * double(j + 1) / double(num_panels_span);
 
 			// panel in the left wing, top surface
-			z(i).setPoints(getPoint(xi, yi, 1), getPoint(xi1, yi, 1),
-					getPoint(xi1, yi1, 1), getPoint(xi, yi1, 1));
+			z(i + j * num_panels_chord).setPoints(getPoint(xi, yi, 1),
+					getPoint(xi1, yi, 1), getPoint(xi1, yi1, 1),
+					getPoint(xi, yi1, 1));
 
 			// panel in the left wing bottom surface
-			z(i).setPoints(getPoint(xi, yi, -1), getPoint(xi, yi1, -1),
-					getPoint(xi1, yi1, -1), getPoint(xi1, yi, -1));
+			z(N + i + j * num_panels_chord).setPoints(getPoint(xi, yi, -1),
+					getPoint(xi, yi1, -1), getPoint(xi1, yi1, -1),
+					getPoint(xi1, yi, -1));
 
 			// panel in the right wing, top surface
-			z(i).setPoints(getPoint(xi, -yi, 1), getPoint(xi, -yi1, 1),
-					getPoint(xi1, -yi1, 1), getPoint(xi1, -yi, 1));
+			z(2 * N + i + j * num_panels_chord).setPoints(getPoint(xi, -yi, 1),
+					getPoint(xi, -yi1, 1), getPoint(xi1, -yi1, 1),
+					getPoint(xi1, -yi, 1));
 
 			// panel in the right wing bottom surface
-			z(i).setPoints(getPoint(xi, -yi, -1), getPoint(xi1, -yi, -1),
-					getPoint(xi1, -yi1, -1), getPoint(xi, -yi1, -1));
+			z(3 * N + i + j * num_panels_chord).setPoints(getPoint(xi, -yi, -1),
+					getPoint(xi1, -yi, -1), getPoint(xi1, -yi1, -1),
+					getPoint(xi, -yi1, -1));
 
 		}
 
