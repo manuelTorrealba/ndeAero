@@ -67,6 +67,12 @@ public:
 	void setPoints(const Vector<double>& x1_in, const Vector<double>& x2_in,
 			const Vector<double>& x3_in, const Vector<double>& x4_in);
 
+	double getSurface() const;
+	Vector<double> getMidPoint() const;
+	Vector<double> getControlPointIn() const;
+	Vector<double> getControlPointOut() const;
+	Vector<double> getNormal() const;
+
 private:
 	Vector<double> x1;
 	Vector<double> x2;
