@@ -110,6 +110,12 @@ public:
 	Vector<double> getForce() const;
 	Vector<double> getMoment(const Vector<double>& xm) const;
 
+	double getSurface() const;
+	Vector<double> getMidPoint() const;
+	Vector<double> getControlPointIn() const;
+	Vector<double> getControlPointOut() const;
+	Vector<double> getNormal() const;
+
 private:
 	// constructor variables
 
