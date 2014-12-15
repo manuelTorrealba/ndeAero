@@ -11,14 +11,65 @@
 
 namespace nde {
 
-Wing::Wing(const Airfoil& airfoil_root_in, const Airfoil& airfoil_tip_in,
-		double wing_span_in, double dihedral_angle_in, double twist_angle_in,
-		double swept_angle_in) :
-		airfoil_root(airfoil_root_in), airfoil_tip(airfoil_tip_in), wing_span(
-				wing_span_in), dihedral_angle(dihedral_angle_in), twist_angle(
-				twist_angle_in), swept_angle(swept_angle_in) {
+Wing::Wing(const Airfoil& airfoil_root_in, 
+	   const Airfoil& airfoil_tip_in,
+	   double wing_span_in,
+	   double dihedral_angle_in,
+	   double twist_angle_in,
+	   double swept_angle_in) :
+	airfoil_root(airfoil_root_in),
+	airfoil_tip(airfoil_tip_in), 
+	wing_span(wing_span_in), 
+	dihedral_angle(dihedral_angle_in),
+	twist_angle(twist_angle_in), 
+	swept_angle(swept_angle_in) {
 	;
 }
+
+Vector<Panel3D> Wing::getPanelsSimpleSurface(int leftright, int updown, 
+					double density_x, double density_y) const {
+
+	// leftright = 1 for right wing, -1 for left wing
+	// updown    = 1 for upper, -1 for lower
+
+	int num_panels_chord = std::floor(1.0 / density_x);
+	int num_panels_span = std::floor(1.0 / density_y);
+	double dx = 1.0 / double(num_panels_chord);
+	double dy = 1.0 / double(num_panels_span);
+
+	int N = num_panels_chord * num_panels_span;
+	Vector<Panel3D> z(N);
+
+	for (int i = 0; i < num_panels_chord; ++i) {
+
+		double xi   = dx * double(i)     / double(num_panels_chord);
+		double xi1  = dx * double(i + 1) / double(num_panels_chord);
+		double xi1h = 0.5 * (xi + xi1);
+
+		for (int j = 0; j < num_panels_span; ++j) {
+
+			double yi   = dy * double(j) / double(num_panels_span);
+			double yi1  = dy * double(j + 1) / double(num_panels_span);
+			double yi1h = 0.5 * (yi + yi1);
+
+			z(i + j * num_panels_chord).setPoints(
+					getPoint(xi  , updown*yi  , leftright),
+					getPoint(xi1 , updown*yi  , leftright),
+					getPoint(xi1 , updown*yi1 , leftright),
+					getPoint(xi  , updown*yi1 , leftright),
+					getPoint(xi1h, updown*yi1h, leftright));
+
+		}
+
+	}
+
+	return z;
+
+}
+
+/*Vector<Panel3D> Wing::getPanelsTip(double density_x, double density_y) const {
+
+}*/
 
 Vector<Panel3D> Wing::getPanels(double density_x, double density_y) const {
 
@@ -43,24 +94,36 @@ Vector<Panel3D> Wing::getPanels(double density_x, double density_y) const {
 			double yi1h = 0.5 * (yi + yi1);
 
 			// panel in the left wing, top surface
-			z(i + j * num_panels_chord).setPoints(getPoint(xi, yi, 1),
-					getPoint(xi1, yi, 1), getPoint(xi1, yi1, 1),
-					getPoint(xi, yi1, 1), getPoint(xi1h, yi1h, 1));
+			z(i + j * num_panels_chord).setPoints(
+							getPoint(xi, yi, 1),
+							getPoint(xi1, yi, 1),
+							getPoint(xi1, yi1, 1),
+							getPoint(xi, yi1, 1),
+							getPoint(xi1h, yi1h, 1));
 
 			// panel in the left wing, bottom surface
-			z(N + i + j * num_panels_chord).setPoints(getPoint(xi, yi, -1),
-					getPoint(xi, yi1, -1), getPoint(xi1, yi1, -1),
-					getPoint(xi1, yi, -1), getPoint(xi1h, yi1h, -1));
+			z(N + i + j * num_panels_chord).setPoints(
+							getPoint(xi, yi, -1),
+							getPoint(xi, yi1, -1),
+							getPoint(xi1, yi1, -1),
+							getPoint(xi1, yi, -1),
+							getPoint(xi1h, yi1h, -1));
 
 			// panel in the right wing, top surface
-			z(2 * N + i + j * num_panels_chord).setPoints(getPoint(xi, -yi, 1),
-					getPoint(xi, -yi1, 1), getPoint(xi1, -yi1, 1),
-					getPoint(xi1, -yi, 1), getPoint(xi1h, -yi1h, 1));
+			z(2 * N + i + j * num_panels_chord).setPoints(
+								getPoint(xi, -yi, 1),
+								getPoint(xi, -yi1, 1),
+								getPoint(xi1, -yi1, 1),
+								getPoint(xi1, -yi, 1),
+								getPoint(xi1h, -yi1h, 1));
 
 			// panel in the right wing, bottom surface
-			z(3 * N + i + j * num_panels_chord).setPoints(getPoint(xi, -yi, -1),
-					getPoint(xi1, -yi, -1), getPoint(xi1, -yi1, -1),
-					getPoint(xi, -yi1, -1), getPoint(xi1h, -yi1h, -1));
+			z(3 * N + i + j * num_panels_chord).setPoints(
+								getPoint(xi, -yi, -1),
+								getPoint(xi1, -yi, -1),
+								getPoint(xi1, -yi1, -1),
+								getPoint(xi, -yi1, -1),
+								getPoint(xi1h, -yi1h, -1));
 
 		}
 
@@ -70,13 +133,16 @@ Vector<Panel3D> Wing::getPanels(double density_x, double density_y) const {
 
 }
 
+
 double Wing::getSurface() const {
 	return getMeanChord() * wing_span;
 }
 
+
 double Wing::getMeanChord() const {
 	return 0.5 * (airfoil_tip.getChord() + airfoil_root.getChord());
 }
+
 
 Vector<double> Wing::getPoint(double x_unit, double y_unit,
 		int top_bottom) const {
@@ -103,6 +169,7 @@ Vector<double> Wing::getPoint(double x_unit, double y_unit,
 	return x;
 
 }
+
 
 // this routine maps [0,1]x[0,1] rectangle on the Wing's surface place.
 Vector<double> Wing::getPointOnWingPlane(double x_unit, double y_unit) const {
@@ -131,12 +198,14 @@ Vector<double> Wing::getPointOnWingPlane(double x_unit, double y_unit) const {
 
 }
 
+
 double Wing::getAirfoilTop(double x_unit, double y_unit) const {
 
 	return airfoil_root.getPointTop(x_unit) * (1.0 - y_unit)
 			+ airfoil_tip.getPointTop(x_unit) * y_unit;
 
 }
+
 
 double Wing::getAirfoilBottom(double x_unit, double y_unit) const {
 

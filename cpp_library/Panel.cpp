@@ -20,6 +20,10 @@ namespace nde {
  */
 /*********************************************************************************************/
 
+Panel2D::Panel2D() {
+	;
+}
+
 Panel2D::Panel2D(const Vector<double>& start_point_in,
 		const Vector<double>& end_point_in) :
 		start_point(start_point_in), end_point(end_point_in) {
@@ -207,6 +211,10 @@ Vector<double> Panel2D::calcConstantVortexSpeed(const Vector<double>& x) const {
  */
 /*********************************************************************************************/
 
+Panel3D::Panel3D() {
+	;
+}
+
 Panel3D::Panel3D(const Vector<double>& x1_in, const Vector<double>& x2_in,
 		const Vector<double>& x3_in, const Vector<double>& x4_in,
 		const Vector<double>& xc_in) :
@@ -363,6 +371,11 @@ Vector<double> Panel3D::getMoment(const Vector<double>& x) const {
 
 	return moment;
 
+}
+
+
+SubPanel3DTriangle::SubPanel3DTriangle() {
+	;
 }
 
 SubPanel3DTriangle::SubPanel3DTriangle(const Vector<double>& x1_in,

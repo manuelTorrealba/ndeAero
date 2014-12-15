@@ -23,20 +23,20 @@ namespace nde {
         }
 
         Vector(int n) : dim(n) {
-            x = (T*) std::malloc(sizeof (T) * n);
+		x = new T[n];//xlocal;
         }
 
-        Vector(const Vector<T>& A) {
-            dim = A.size();
-            if (dim > 0) x = (T*) std::malloc(sizeof (T) * dim);
-            for (int i = 0; i < dim; ++i) *(x + i) = A(i);
+	Vector(const Vector<T>& A) {
+		dim = A.size();
+		if (dim > 0) x = new T[dim];
+		for (int i = 0; i < dim; ++i) *(x + i) = A(i);
         }
 
         Vector<T>& operator=(const Vector<T>& A) {
-            dim = A.size();
-            if (dim > 0) x = (T*) std::malloc(sizeof (T) * dim);
-            for (int i = 0; i < dim; ++i) *(x + i) = A(i);
-            return *this;
+		dim = A.size();
+		if (dim > 0) x = new T[dim];
+		for (int i = 0; i < dim; ++i) *(x + i) = A(i);
+		return *this;
         }
 
         int size() const {
@@ -48,9 +48,9 @@ namespace nde {
         }
 
         void resize(int n) {
-            if (dim > 0) std::free(x);
-            dim = n;
-            x = (T*) std::malloc(sizeof (T) * n);
+		if (dim > 0) delete[] x;
+		dim = n;
+		x = new T[n];
         }
 
         T operator()(int i) const {
@@ -141,7 +141,7 @@ namespace nde {
 
         virtual ~Vector() {
             //std::cout << "Exterminate Vector!" << std::endl;
-            if (dim > 0) std::free(x);
+		if (dim > 0) delete[] x;
         }
 
         const T* begin() const {

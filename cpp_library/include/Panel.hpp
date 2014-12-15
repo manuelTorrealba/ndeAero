@@ -15,6 +15,7 @@ namespace nde {
 
 class Panel2D {
 public:
+	Panel2D();
 	Panel2D(const Vector<double>& start_point_in,
 			const Vector<double>& end_point_in);
 
@@ -59,6 +60,7 @@ private:
 
 class SubPanel3DTriangle {
 public:
+	SubPanel3DTriangle();
 	SubPanel3DTriangle(const Vector<double>& x1_in, const Vector<double>& x2_in,
 			const Vector<double>& x3_in);
 
@@ -86,7 +88,7 @@ private:
 
 class Panel3D {
 public:
-
+	Panel3D();
 	// panel defined by four corner points.
 	Panel3D(const Vector<double>& x1_in, const Vector<double>& x2_in,
 			const Vector<double>& x3_in, const Vector<double>& x4_in,
@@ -144,6 +146,15 @@ private:
 	void setPanel3D();
 
 };
+
+class Panel3DTriangle {
+
+};
+
+class Panel3DSquare {
+
+};
+
 
 }/*end of namespace nde */
 

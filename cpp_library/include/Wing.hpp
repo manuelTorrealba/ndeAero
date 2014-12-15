@@ -22,6 +22,9 @@ public:
 			double swept_angle_in //in radians
 			);
 
+	Vector<Panel3D> getPanelsSimpleSurface(int leftright, int updown, 
+					double density_x, double density_y) const;
+
 	Vector<Panel3D> getPanels(double density_x, double density_y) const;
 
 	double getSurface() const;
