@@ -1,89 +1,48 @@
-/* 
+/**
  * File:   Airfoil.hpp
  * Author: kenobi
  *
  * Created on July 23, 2014, 12:51 PM
  */
 
-#ifndef AIRFOIL_HPP
-#define	AIRFOIL_HPP
+#ifndef INCLUDE_AIRFOIL_HPP
+#define INCLUDE_AIRFOIL_HPP
 
-#include"Vector.hpp"
-#include"Panel.hpp"
-
-#include<cmath>
+#include "Panel.hpp"
+#include "NacaAirfoil.hpp"
+#include "ThinAirfoil.hpp"
+#include "Vector.hpp"
+#include <cmath>
 
 namespace nde {
 
-    struct NacaAirfoil {
-    public:
-        double chord;
-        int naca1;
-        int naca2;
-        int naca3;
-        int naca4;
+	/**
+	  * Generic Airfoil class
+	  * This routine panelizes a given airfoil curve.
+	  * It can be initialized with a Naca Airfoil.
+	  *
+	  * TODO
+	  *	- initialize with a generic coordinates vector.
+	  *	- define flap surfaces and flap deflexion.
+     *
+	  */
+	class Airfoil : public ThinAirfoil {
+	public:
+		Airfoil(const NacaAirfoil& naca_airfoil_in);
+		Vector<Panel2D > getPanels(double density) const;
+		double getChord() const;
+		double getPointBottom(double x) const;
+		double getPointTop(double x) const;
 
-        NacaAirfoil(double chord_in,
-                int naca1_in,
-                int naca2_in,
-                int naca3_in,
-                int naca4_in)
-        : chord(chord_in),
-        naca1(naca1_in),
-        naca2(naca2_in),
-        naca3(naca3_in),
-        naca4(naca4_in) {
-            ;
-        }
+	protected:
+		// inherited from ThinAirfoil
+		virtual	double dCamberDx(double t) const;
 
-        double top(double x) const {
-            return camber(x) + thickness(x);
-        }
-        
-        double bottom(double x) const {
-            return camber(x) - thickness(x);
-        }
-        
-        double camber(double x) const {
-            double p = double(naca1) / 100.;
-            double m = double(naca2) / 10.;
-            double y = 0.0;
-            if (x < p * chord)
-                y = m * x / (p * p)*(2.0 * p - x / chord);
-            else
-                y = m * (chord - x) / ((1.0 - p)*(1.0 - p))
-                *(1.0 + x / chord - 2.0 * p);
-            return y;
-        }
-
-        double thickness(double x) const {
-            double t = (double(naca3)*10. + double(naca4)) / 100.;
-            double h = x / chord;
-            double y = t / 0.2 * (0.2969 * std::sqrt(h) - 0.1260 * h
-                    - 0.3516 * h * h + 0.2843 * h * h * h
-                    - 0.1036 * h * h * h * h);
-            //last coefficient modified from -0.1015 to -0.1036
-            //to get zero thickness at the trailing edge while
-            //modifying the shape of the airfoil as little
-            //as possible.
-            return y*chord;
-        }
-
-    };
-
-    class Airfoil {
-    public:
-        Airfoil(const NacaAirfoil& naca_airfoil_in);
-        Vector<Panel2D > getPanels(double density) const;
-        double getChord() const;
-        double getPointBottom(double x) const;
-        double getPointTop(double x) const;
-
-    private:
-        NacaAirfoil naca_airfoil;
-    };
+	private:
+		NacaAirfoil naca_airfoil;
+	};
 
 }
 
-#endif	/* AIRFOIL_HPP */
+#endif	/* INCLUDE_AIRFOIL_HPP */
 
