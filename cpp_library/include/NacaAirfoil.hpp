@@ -111,6 +111,18 @@ namespace nde {
 
 	};
 
+	class NacaFiveDigitsMaxCamber: public EquationSolver {
+	public:
+			NacaFiveDigitsMaxCamber(double xf);
+			double calcMaxCamberX();
+
+	protected:
+		virtual double solverF(double x);
+
+	private:
+		double _xf;
+	};
+
 } /* end of namespace nde */
 
 #endif

@@ -11,7 +11,6 @@
 
 namespace nde {
 
-
 	NacaAirfoil::NacaAirfoil(double chord,
 								const Vector<unsigned int>& naca_codenum)
 	  : _chord(chord), _naca_codenum(naca_codenum) {
@@ -152,17 +151,10 @@ namespace nde {
 		double xf = 0.5 * p; // maximum camber position designator
 
 		// maximum camber position calculation
-		// by fixed point iterations
-		double m = xf;
-		double err;
-		do {
-			double m_new = xf / (1.0 - std::sqrt(m/3.0));
-			err = std::abs(m - m_new);
-			m = m_new;
-		} while (err > 1.e-6);
+		NacaFiveDigitsMaxCamber naca_max_camber(xf);
+		max_camber_x = naca_max_camber.calcMaxCamberX();
 
-		max_camber_x = m;
-
+		double m = max_camber_x;
 		double m2 = m * m;
 		double m3 = m2 * m;
 		double m4 = m3 * m;
@@ -172,7 +164,7 @@ namespace nde {
 					 / std::sqrt(m - m2);
 		double q2 = -1.5 * ( 1.0 - 2.0 * m) *
 						(0.5 * M_PI - std::asin(1.0 - 2.0 * m));
-		max_camber_val = cl_ideal / (q1 + q2);
+		max_camber_val = 6.0 * cl_ideal / (q1 + q2);
 
 	}
 
@@ -180,7 +172,7 @@ namespace nde {
 
 		// short names
 		double m = _max_camber_x;
-		double k1 = _max_camber_val;
+		double k1 = _max_camber_val / 6.0;
 
 		// different powers of _max_camber_x needed
 		double m2 = m * m;
@@ -230,6 +222,23 @@ namespace nde {
 
 	}
 
+	/**
+	  *
+	  */
+	NacaFiveDigitsMaxCamber::NacaFiveDigitsMaxCamber(double xf) :
+																	_xf(xf) {
+		;
+	}
+
+	double NacaFiveDigitsMaxCamber::calcMaxCamberX() {
+		return secant(_xf, 1.1 * _xf); // looking for the root slightly bigger xf
+  												  // but never smaller
+	}
+
+	double NacaFiveDigitsMaxCamber::solverF(double x) {
+		return _xf - x * (1.0 - std::sqrt(x / 3.0));
+	}
+
 
 
 	/**
@@ -244,9 +253,14 @@ namespace nde {
 		double xf = 0.5 * p; // maximum camber position designator
 									// search for the root which is on the right of xf!
 
+		// maximum camber position calculation
+		// start with the non-reflexed position as initial guess
+		NacaFiveDigitsMaxCamber naca_max_camber_non_reflx(xf);
+		double max_camber_non_reflx_x = naca_max_camber_non_reflx.calcMaxCamberX();
+
 		_solver_objective = 1;
-		_max_camber_x = secant(std::min(1.2 * xf, 0.9),
-									  std::min(2.0 * xf, 1.0));
+		_max_camber_x = secant(max_camber_non_reflx_x,
+									  std::min(1.1 * max_camber_non_reflx_x, 0.99));
 
 		// _max_camber_val is calculated to give
 		// Cl(ideal) = design lift coeffcient
@@ -326,6 +340,7 @@ namespace nde {
 		return y * k1 / 6.0;
 
 	}
+
 
 } /* end of namespace nde */
 
