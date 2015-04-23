@@ -26,17 +26,13 @@ namespace nde {
 	  *	- define flap surfaces and flap deflexion.
      *
 	  */
-	class Airfoil : public ThinAirfoil {
+	class Airfoil {
 	public:
 		Airfoil(const NacaAirfoil& naca_airfoil_in);
 		Vector<Panel2D > getPanels(double density) const;
 		double getChord() const;
 		double getPointBottom(double x) const;
 		double getPointTop(double x) const;
-
-	protected:
-		// inherited from ThinAirfoil
-		virtual	double dCamberDx(double t) const;
 
 	private:
 		NacaAirfoil naca_airfoil;

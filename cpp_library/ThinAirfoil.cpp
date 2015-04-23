@@ -20,15 +20,17 @@ namespace nde {
 
 	double ThinAirfoil::calcA(unsigned int n) const {
 		
-		double dt = M_PI / _n_steps;
+		double dtheta = M_PI / _n_steps;
 	
 		double a = 0.0;
 		for (unsigned int i = 0; i < _n_steps; ++i) {
 			
-			double t = dt*double(i);
-			double c = std::cos(t*double(n));
+			double theta = dtheta * double(i);
+			double c = std::cos(theta * double(n));
+			double t = 0.5 * (1.0 - std::cos(theta));
 			double d = dCamberDx(t);
-			a += c * d;
+			a += c * d * dtheta;
+
 		}
 
 		a /= M_PI;

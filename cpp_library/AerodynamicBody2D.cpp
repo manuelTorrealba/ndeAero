@@ -1,4 +1,4 @@
-/* 
+/**
  * File:   AerodynamicBody2D.hpp
  * Author: kenobi
  *
@@ -12,28 +12,36 @@
 
 namespace nde {
 
-    AerodynamicBody2D::AerodynamicBody2D(
-            double chord_in,
-            const Vector<Panel2D>& panels_in,
-            double angle_attack_in)
-    : chord(chord_in), panels(panels_in), angle_attack(angle_attack_in) {
-        incident_flow.resize(2);
-        incident_flow(0) = cos(angle_attack);
-        incident_flow(1) = sin(angle_attack);
-    }
+	AerodynamicBody2D::AerodynamicBody2D(
+		   double chord,
+		   const Vector<Panel2D>& panels,
+		   double angle_attack)
+	: _chord(chord), _panels(panels), _angle_attack(angle_attack) {
+	  _incident_flow.resize(2);
+	  _incident_flow(0) = cos(_angle_attack);
+	  _incident_flow(1) = sin(_angle_attack);
+	}
 
-    void AerodynamicBody2D::calcPotentialFlow(PanelMethodType panel_method_type) {
+	void AerodynamicBody2D::changeAngleAttack(double angle_attack) {
+		_angle_attack = angle_attack;
+	  _incident_flow.resize(2);
+	  _incident_flow(0) = cos(_angle_attack);
+	  _incident_flow(1) = sin(_angle_attack);
+	}
 
-        int num_panels = panels.size();
+    void AerodynamicBody2D::calcPotentialFlow
+													(PanelMethodType panel_method_type) {
+
+        int num_panels = _panels.size();
 
         switch (panel_method_type) {
 
             case DIRICHLET_CONSTANT_DOUBLETS:
             {
 
-                Vector<double> far_wake_point = panels(0).getStartPoint();
+                Vector<double> far_wake_point = _panels(0).getStartPoint();
                 far_wake_point(0) += 100.0;
-                Panel2D wake_panel(panels(0).getStartPoint(),
+                Panel2D wake_panel(_panels(0).getStartPoint(),
                         far_wake_point);
 
                 /* calculate the doublets intensity */
@@ -42,13 +50,13 @@ namespace nde {
                 Matrix<double> A(num_panels + 1, num_panels + 1);
                 Vector<double> b(num_panels + 1);
                 for (int i = 0; i < num_panels; ++i) {
-                    b(i) = incident_flow * panels(i).getControlPointIn()*(-1.0);
+                    b(i) = _incident_flow * _panels(i).getControlPointIn()*(-1.0);
                     A(i, num_panels) = wake_panel.calcConstantDoubletPotencial
-                            (panels(i).getControlPointIn());
+                            (_panels(i).getControlPointIn());
                     A(num_panels, i) = 0.0;
                     for (int j = 0; j < num_panels; ++j) {
-                        A(i, j) = panels(j).calcConstantDoubletPotencial
-                                (panels(i).getControlPointIn());
+                        A(i, j) = _panels(j).calcConstantDoubletPotencial
+                                (_panels(i).getControlPointIn());
                     }
                 }
                 A(num_panels, 0) = 1.0;
@@ -65,29 +73,33 @@ namespace nde {
                 wake = sol(num_panels);
 
                 /* calculate speed on the surface and local c_p*/
-                x.resize(num_panels - 1);
-                v.resize(num_panels - 1);
-                cp.resize(num_panels - 1);
+                _x.resize(num_panels - 1);
+                _v.resize(num_panels - 1);
+                _cp.resize(num_panels - 1);
                 for (int i = 0; i < num_panels - 1; ++i) {
-                    Vector<double> dl = panels(i + 1).getMidPoint() - panels(i).getMidPoint();
-                    x(i) = (panels(i + 1).getMidPoint()(0) + panels(i).getMidPoint()(0)) * 0.5;
-                    v(i) = (doublets(i + 1) - doublets(i)) / dl.norm();
-                    cp(i) = 1 - v(i) * v(i);
+                    Vector<double> dl = _panels(i + 1).getMidPoint() 
+												  - _panels(i).getMidPoint();
+                    _x(i) = (_panels(i + 1).getMidPoint()(0)
+								  + _panels(i).getMidPoint()(0)) * 0.5;
+                    _v(i) = (doublets(i + 1) - doublets(i)) / dl.norm();
+                    _cp(i) = 1 - _v(i) * _v(i);
                 }
 
                 /* calculate total aerodynamic force */
                 Vector<double> Fg(2);
                 Fg.fill(0.0);
                 for (int i = 0; i < num_panels - 1; ++i) {
-                    Vector<double> dl = panels(i + 1).getMidPoint() - panels(i).getMidPoint();
-                    Vector<double> n = (panels(i + 1).getNormal() + panels(i).getNormal())* (-0.5);
-                    Fg = Fg + n * (cp(i) * dl.norm());
+                    Vector<double> dl = _panels(i + 1).getMidPoint() 
+												  - _panels(i).getMidPoint();
+                    Vector<double> n = (_panels(i + 1).getNormal() 
+												  + _panels(i).getNormal())* (-0.5);
+                    Fg = Fg + n * (_cp(i) * dl.norm());
                 }
-                Fg = Fg / chord;
+                Fg = Fg / _chord;
 
-                F.resize(2);
-                F(0) = Fg(0) * cos(angle_attack) + Fg(1) * sin(angle_attack);
-                F(1) = -Fg(0) * sin(angle_attack) + Fg(1) * cos(angle_attack);
+                _F.resize(2);
+                _F(0) = Fg(0) * cos(_angle_attack) + Fg(1) * sin(_angle_attack);
+                _F(1) = -Fg(0) * sin(_angle_attack) + Fg(1) * cos(_angle_attack);
 
                 break;
 
@@ -95,15 +107,15 @@ namespace nde {
             case DIRICHLET_CONSTANT_SOURCES_AND_DOUBLETS:
             {
 
-                Vector<double> far_wake_point = panels(0).getStartPoint();
+                Vector<double> far_wake_point = _panels(0).getStartPoint();
                 far_wake_point(0) += 100.0;
-                Panel2D wake_panel(panels(0).getStartPoint(),
+                Panel2D wake_panel(_panels(0).getStartPoint(),
                         far_wake_point);
 
                 /* calculate the sources */
                 Vector<double> sources(num_panels);
                 for (int i = 0; i < num_panels; ++i)
-                    sources(i) = incident_flow * panels(i).getNormal();
+                    sources(i) = _incident_flow * _panels(i).getNormal();
 
 
                 /* calculate the doublets intensity */
@@ -114,13 +126,13 @@ namespace nde {
                 for (int i = 0; i < num_panels; ++i) {
                     b(i) = 0.0;
                     A(i, num_panels) = wake_panel.calcConstantDoubletPotencial
-                            (panels(i).getControlPointIn());
+                            (_panels(i).getControlPointIn());
                     A(num_panels, i) = 0.0;
                     for (int j = 0; j < num_panels; ++j) {
-                        b(i) -= sources(j) * panels(j).calcConstantSourcePotencial
-                                (panels(i).getControlPointIn());
-                        A(i, j) = panels(j).calcConstantDoubletPotencial
-                                (panels(i).getControlPointIn());
+                        b(i) -= sources(j) * _panels(j).calcConstantSourcePotencial
+                                (_panels(i).getControlPointIn());
+                        A(i, j) = _panels(j).calcConstantDoubletPotencial
+                                (_panels(i).getControlPointIn());
                     }
                 }
                 A(num_panels, 0) = 1.0;
@@ -137,32 +149,39 @@ namespace nde {
                 wake = sol(num_panels);
 
                 /* calculate speed on the surface and local c_p*/
-                x.resize(num_panels - 1);
-                v.resize(num_panels - 1);
-                cp.resize(num_panels - 1);
+                _x.resize(num_panels - 1);
+                _v.resize(num_panels - 1);
+                _cp.resize(num_panels - 1);
                 for (int i = 0; i < num_panels - 1; ++i) {
-                    Vector<double> dl = panels(i + 1).getMidPoint() - panels(i).getMidPoint();
-                    Vector<double> mt = (panels(i + 1).getTangent() + panels(i).getTangent())*0.5;
-                    x(i) = (panels(i + 1).getMidPoint()(0) + panels(i).getMidPoint()(0)) * 0.5;
-                    v(i) = incident_flow * mt + (doublets(i + 1) - doublets(i)) / dl.norm();
-                    cp(i) = 1 - v(i) * v(i);
+                    Vector<double> dl = _panels(i + 1).getMidPoint() 
+												  - _panels(i).getMidPoint();
+                    Vector<double> mt = (_panels(i + 1).getTangent() 
+												   + _panels(i).getTangent()) * 0.5;
+                    _x(i) = (_panels(i + 1).getMidPoint()(0) 
+								  + _panels(i).getMidPoint()(0)) * 0.5;
+                    _v(i) = _incident_flow * mt + (doublets(i + 1)
+								 - doublets(i)) / dl.norm();
+                    _cp(i) = 1 - _v(i) * _v(i);
                 }
 
                 /* calculate total aerodynamic force */
                 Vector<double> Fg(2);
                 Fg.fill(0.0);
                 for (int i = 0; i < num_panels - 1; ++i) {
-                    Vector<double> dl = panels(i + 1).getMidPoint() - panels(i).getMidPoint();
-                    Vector<double> n = (panels(i + 1).getNormal() + panels(i).getNormal())* (-0.5);
-                    Fg = Fg + n * (cp(i) * dl.norm());
+                    Vector<double> dl = _panels(i + 1).getMidPoint() 
+												  - _panels(i).getMidPoint();
+                    Vector<double> n = (_panels(i + 1).getNormal() 
+												 + _panels(i).getNormal())* (-0.5);
+                    Fg = Fg + n * (_cp(i) * dl.norm());
                 }
-                Fg = Fg / chord;
+                Fg = Fg / _chord;
 
-                F.resize(2);
-                F(0) = Fg(0) * cos(angle_attack) + Fg(1) * sin(angle_attack);
-                F(1) = -Fg(0) * sin(angle_attack) + Fg(1) * cos(angle_attack);
+                _F.resize(2);
+                _F(0) = Fg(0) * cos(_angle_attack) + Fg(1) * sin(_angle_attack);
+                _F(1) = -Fg(0) * sin(_angle_attack) + Fg(1) * cos(_angle_attack);
 
                 break;
+
             }
             case NEUMANN_CONSTANT_SOURCES_AND_VORTEX:
             {
@@ -174,34 +193,34 @@ namespace nde {
                 double sum_tangent_vortexes = 0.0;
                 for (int i = 0; i < num_panels; ++i) {
 
-                    b(i) = incident_flow * panels(i).getNormal()*(-1.0);
+                    b(i) = _incident_flow * _panels(i).getNormal()*(-1.0);
 
                     double sum_normal_vortexes = 0.0;
 
                     for (int j = 0; j < num_panels; ++j) {
-                        A(i, j) = panels(j).calcConstantSourceSpeed
-                                (panels(i).getControlPointOut()) * panels(i).getNormal();
-                        sum_normal_vortexes += panels(j).calcConstantVortexSpeed
-                                (panels(i).getControlPointOut()) * panels(i).getNormal();
+                        A(i, j) = _panels(j).calcConstantSourceSpeed
+                                (_panels(i).getControlPointOut()) * _panels(i).getNormal();
+                        sum_normal_vortexes += _panels(j).calcConstantVortexSpeed
+                                (_panels(i).getControlPointOut()) * _panels(i).getNormal();
                     }
 
                     A(i, num_panels) = sum_normal_vortexes;
 
-                    A(num_panels, i) = panels(i).calcConstantSourceSpeed
-                            (panels(0).getControlPointOut()) * panels(0).getTangent()
-                            + panels(i).calcConstantSourceSpeed
-                            (panels(num_panels - 1).getControlPointOut()) * panels(num_panels - 1).getTangent();
+                    A(num_panels, i) = _panels(i).calcConstantSourceSpeed
+                            (_panels(0).getControlPointOut()) * _panels(0).getTangent()
+                            + _panels(i).calcConstantSourceSpeed
+                            (_panels(num_panels - 1).getControlPointOut()) * _panels(num_panels - 1).getTangent();
 
-                    sum_tangent_vortexes += panels(i).calcConstantVortexSpeed
-                            (panels(0).getControlPointOut()) * panels(0).getTangent()
-                            + panels(i).calcConstantVortexSpeed
-                            (panels(num_panels - 1).getControlPointOut()) * panels(num_panels - 1).getTangent();
+                    sum_tangent_vortexes += _panels(i).calcConstantVortexSpeed
+                            (_panels(0).getControlPointOut()) * _panels(0).getTangent()
+                            + _panels(i).calcConstantVortexSpeed
+                            (_panels(num_panels - 1).getControlPointOut()) * _panels(num_panels - 1).getTangent();
 
                 }
 
                 A(num_panels, num_panels) = sum_tangent_vortexes;
-                b(num_panels) = -(incident_flow * panels(0).getTangent()
-                        + incident_flow * panels(num_panels - 1).getTangent());
+                b(num_panels) = -(_incident_flow * _panels(0).getTangent()
+                        + _incident_flow * _panels(num_panels - 1).getTangent());
 
                 Vector<double> sources(num_panels);
                 double vortex;
@@ -214,27 +233,27 @@ namespace nde {
 
 
                 /* calculate speed on the surface and local c_p*/
-                x.resize(num_panels - 1);
-                v.resize(num_panels - 1);
-                cp.resize(num_panels - 1);
+                _x.resize(num_panels - 1);
+                _v.resize(num_panels - 1);
+                _cp.resize(num_panels - 1);
                 Vector<double> Fg(2);
                 Fg.fill(0.0);
                 for (int i = 0; i < num_panels - 1; ++i) {
-                    x(i) = panels(i).getControlPointOut()(0);
-                    Vector<double> p = panels(i).getControlPointOut();
-                    v(i) = incident_flow * panels(i).getTangent();
+                    _x(i) = _panels(i).getControlPointOut()(0);
+                    Vector<double> p = _panels(i).getControlPointOut();
+                    _v(i) = _incident_flow * _panels(i).getTangent();
                     for (int j = 0; j < num_panels; ++j)
-                        v(i) += (panels(j).calcConstantSourceSpeed(p) * sources(j)
-                            + panels(j).calcConstantVortexSpeed(p) * vortex)
-                        * panels(i).getTangent();
-                    cp(i) = 1 - v(i) * v(i);
-                    Fg = Fg - panels(i).getNormal() * cp(i) * panels(i).getLength();
+                        _v(i) += (_panels(j).calcConstantSourceSpeed(p) * sources(j)
+                            + _panels(j).calcConstantVortexSpeed(p) * vortex)
+                        * _panels(i).getTangent();
+                    _cp(i) = 1 - _v(i) * _v(i);
+                    Fg = Fg - _panels(i).getNormal() * _cp(i) * _panels(i).getLength();
                 }
-                Fg = Fg / chord;
+                Fg = Fg / _chord;
 
-                F.resize(2);
-                F(0) = Fg(0) * cos(angle_attack) + Fg(1) * sin(angle_attack);
-                F(1) = -Fg(0) * sin(angle_attack) + Fg(1) * cos(angle_attack);
+                _F.resize(2);
+                _F(0) = Fg(0) * cos(_angle_attack) + Fg(1) * sin(_angle_attack);
+                _F(1) = -Fg(0) * sin(_angle_attack) + Fg(1) * cos(_angle_attack);
 
                 break;
 
@@ -248,7 +267,7 @@ namespace nde {
     }
 
     Vector<double> AerodynamicBody2D::getForceCoeffs() const {
-        return F;
+        return _F;
     }
 
     //    Vector<double> AerodynamicBody2D::calcForceCoefficients() const {

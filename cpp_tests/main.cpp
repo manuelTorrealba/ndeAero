@@ -1,10 +1,12 @@
-#include"Vector.hpp"
-#include"Matrix.hpp"
-#include"Interpolator.hpp"
-#include"AerodynamicBody2D.hpp"
-#include"Airfoil.hpp"
+#include "AerodynamicBody2D.hpp"
+#include "Airfoil.hpp"
+#include "Interpolator.hpp"
+#include "Matrix.hpp"
+#include "TestThinAirfoil.hpp"
+#include "ThinAirfoil.hpp"
+#include "Vector.hpp"
 
-#include<iostream>
+#include <iostream>
 
 /* nde: numerical design engineering */
 
@@ -17,11 +19,29 @@ int main(int narg, char** arg) {
 	{
 
 	cout << "/******************************************************/" << endl;
-	cout << "/* NACA airfoil test" << endl;
+	cout << "/* Thin Airfoil theory test" << endl;
 	cout << "/******************************************************/" << endl;
 
-	nde::Vector<int> naca_codenum(4);
-	naca_codenum(0) = 0;	naca_codenum(1) = 0; 
+	nde::ParabolicArc pa(14, 0.1); // 2^14 = 16384 integration points
+											// and 0.1 for maximum camber
+
+	cout << "C_L = " << pa.calcCL(0.0) << endl;
+	cout << "C_M 1/4 = " << pa.calcCM(0.0, 0.25) << endl;
+
+	cout << "C_L (theory) = " << 4.0 * M_PI * 0.1 << endl;
+	cout << "C_M 1/4 (theory) = " << -M_PI * 0.1 << endl;
+
+	}
+
+
+	{
+
+	cout << "/******************************************************/" << endl;
+	cout << "/* NACA 4-digits airfoil test" << endl;
+	cout << "/******************************************************/" << endl;
+
+	nde::Vector<unsigned int> naca_codenum(4);
+	naca_codenum(0) = 0;	naca_codenum(1) = 0;
 	naca_codenum(2) = 1; naca_codenum(3) = 0;
 	nde::NacaAirfoil naca_airfoil(1.0, naca_codenum);
 	nde::Airfoil airfoil(naca_airfoil);
@@ -42,6 +62,101 @@ int main(int narg, char** arg) {
 	cout << "Force Neumann = (" << F3(0) << "," << F3(1) << ")" << endl;
 
 	}
+
+
+	{
+
+	cout << "/******************************************************/" << endl;
+	cout << "/* NACA 5-digits airfoil test" << endl;
+	cout << "/******************************************************/" << endl;
+
+	nde::Vector<unsigned int> naca_codenum(5);
+	naca_codenum(0) = 2;	naca_codenum(1) = 3;
+	naca_codenum(2) = 0; naca_codenum(3) = 1; naca_codenum(4) = 2;
+	nde::NacaAirfoil naca_airfoil(1.0, naca_codenum);
+	nde::Airfoil airfoil(naca_airfoil);
+	nde::Vector<nde::Panel2D> panels = airfoil.getPanels(0.01);
+
+	cout << "Angle of attack = 0.0" << endl;
+	nde::AerodynamicBody2D body2D(1.0, panels, 0.0);
+
+	body2D.calcPotentialFlow(nde::DIRICHLET_CONSTANT_DOUBLETS);
+	nde::Vector<double> F1 = body2D.getForceCoeffs();
+	cout << "Force Dirichlet 1 = (" << F1(0) << ", " << F1(1) << ")" << endl;
+
+	body2D.calcPotentialFlow(nde::DIRICHLET_CONSTANT_SOURCES_AND_DOUBLETS);
+	nde::Vector<double> F2 = body2D.getForceCoeffs();
+	cout << "Force Dirichlet 2 = (" << F2(0) << "," << F2(1) << ")" << endl;
+
+	body2D.calcPotentialFlow(nde::NEUMANN_CONSTANT_SOURCES_AND_VORTEX);
+	nde::Vector<double> F3 = body2D.getForceCoeffs();
+	cout << "Force Neumann = (" << F3(0) << "," << F3(1) << ")" << endl;
+
+
+	cout << "Angle of attack = 0.0873" << endl;
+	body2D.changeAngleAttack(5.0 * M_PI / 180.0);
+
+	body2D.calcPotentialFlow(nde::DIRICHLET_CONSTANT_DOUBLETS);
+	nde::Vector<double> F1_1 = body2D.getForceCoeffs();
+	cout << "Force Dirichlet 1 = (" << F1_1(0) << ", " << F1_1(1) << ")" << endl;
+
+	body2D.calcPotentialFlow(nde::DIRICHLET_CONSTANT_SOURCES_AND_DOUBLETS);
+	nde::Vector<double> F2_1 = body2D.getForceCoeffs();
+	cout << "Force Dirichlet 2 = (" << F2_1(0) << "," << F2_1(1) << ")" << endl;
+
+	body2D.calcPotentialFlow(nde::NEUMANN_CONSTANT_SOURCES_AND_VORTEX);
+	nde::Vector<double> F3_1 = body2D.getForceCoeffs();
+	cout << "Force Neumann = (" << F3_1(0) << "," << F3_1(1) << ")" << endl;
+
+	}
+
+
+	{
+
+	cout << "/******************************************************/" << endl;
+	cout << "/* NACA 5-digits reflexed airfoil test" << endl;
+	cout << "/******************************************************/" << endl;
+
+	nde::Vector<unsigned int> naca_codenum(5);
+	naca_codenum(0) = 2;	naca_codenum(1) = 3;
+	naca_codenum(2) = 1; naca_codenum(3) = 1; naca_codenum(4) = 2;
+	nde::NacaAirfoil naca_airfoil(1.0, naca_codenum);
+	nde::Airfoil airfoil(naca_airfoil);
+	nde::Vector<nde::Panel2D> panels = airfoil.getPanels(0.01);
+
+	cout << "Angle of attack = 0.0" << endl;
+	nde::AerodynamicBody2D body2D(1.0, panels, 0.0);
+
+	body2D.calcPotentialFlow(nde::DIRICHLET_CONSTANT_DOUBLETS);
+	nde::Vector<double> F1 = body2D.getForceCoeffs();
+	cout << "Force Dirichlet 1 = (" << F1(0) << ", " << F1(1) << ")" << endl;
+
+	body2D.calcPotentialFlow(nde::DIRICHLET_CONSTANT_SOURCES_AND_DOUBLETS);
+	nde::Vector<double> F2 = body2D.getForceCoeffs();
+	cout << "Force Dirichlet 2 = (" << F2(0) << "," << F2(1) << ")" << endl;
+
+	body2D.calcPotentialFlow(nde::NEUMANN_CONSTANT_SOURCES_AND_VORTEX);
+	nde::Vector<double> F3 = body2D.getForceCoeffs();
+	cout << "Force Neumann = (" << F3(0) << "," << F3(1) << ")" << endl;
+
+
+	cout << "Angle of attack = 0.0873" << endl;
+	body2D.changeAngleAttack(5.0 * M_PI / 180.0);
+
+	body2D.calcPotentialFlow(nde::DIRICHLET_CONSTANT_DOUBLETS);
+	nde::Vector<double> F1_1 = body2D.getForceCoeffs();
+	cout << "Force Dirichlet 1 = (" << F1_1(0) << ", " << F1_1(1) << ")" << endl;
+
+	body2D.calcPotentialFlow(nde::DIRICHLET_CONSTANT_SOURCES_AND_DOUBLETS);
+	nde::Vector<double> F2_1 = body2D.getForceCoeffs();
+	cout << "Force Dirichlet 2 = (" << F2_1(0) << "," << F2_1(1) << ")" << endl;
+
+	body2D.calcPotentialFlow(nde::NEUMANN_CONSTANT_SOURCES_AND_VORTEX);
+	nde::Vector<double> F3_1 = body2D.getForceCoeffs();
+	cout << "Force Neumann = (" << F3_1(0) << "," << F3_1(1) << ")" << endl;
+
+	}
+
 
 	{
 

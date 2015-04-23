@@ -8,23 +8,12 @@
 #ifndef INCLUDE_NACA_AIRFOIL_HELPER_HPP
 #define INCLUDE_NACA_AIRFOIL_HELPER_HPP
 
-#include"Vector.hpp"
-#include"Panel.hpp"
-#include<cmath>
+#include "ThinAirfoil.hpp"
+#include "Vector.hpp"
+#include <cmath>
 
 namespace nde {
 
-	/**
-	  * Naca
-	  */
-	class NacaFiveDigitsOptCamber {
-	public:
-		NacaFiveDigitsOptCamber(double xf);
-		double calcThinAirfoilMoment
-	private:
-		double _xf;
-
-	}
 
 }
 

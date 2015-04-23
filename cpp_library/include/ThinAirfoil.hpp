@@ -20,10 +20,11 @@ namespace nde {
 		double calcCL(double angle_attack) const;
 		double calcCM(double angle_attack, double tm) const;
 
-	protected:
+		virtual double camber(double t) const = 0;
 		virtual	double dCamberDx(double t) const = 0;
 
-	private:
+
+	protected:
 		unsigned int _n_steps;
 		double calcA(unsigned int n) const;
 	};
