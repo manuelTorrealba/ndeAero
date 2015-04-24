@@ -25,7 +25,9 @@ namespace nde {
 		NacaAirfoil(const NacaAirfoil& naca_airfoil);
 
 		virtual ~NacaAirfoil();
-		
+
+		NacaAirfoil operator=(const NacaAirfoil& naca_airfoil) const;
+
 		double getChord() const {
 			return _chord;
 		}
@@ -111,6 +113,9 @@ namespace nde {
 
 	};
 
+	/**
+	  * Helper class for the calculation of 5digits max camber position
+	  */
 	class NacaFiveDigitsMaxCamber: public EquationSolver {
 	public:
 			NacaFiveDigitsMaxCamber(double xf);

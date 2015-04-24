@@ -45,7 +45,10 @@ int main(int narg, char** arg) {
 	naca_codenum(2) = 1; naca_codenum(3) = 0;
 	nde::NacaAirfoil naca_airfoil(1.0, naca_codenum);
 	nde::Airfoil airfoil(naca_airfoil);
+	airfoil.writeCoordsToFile("NACA0010.dat",50);
+
 	nde::Vector<nde::Panel2D> panels = airfoil.getPanels(0.01);
+
 
 	nde::AerodynamicBody2D body2D(1.0, panels, 5.0 * M_PI / 180.0);
 
@@ -61,6 +64,7 @@ int main(int narg, char** arg) {
 	nde::Vector<double> F3 = body2D.getForceCoeffs();
 	cout << "Force Neumann = (" << F3(0) << "," << F3(1) << ")" << endl;
 
+	
 	}
 
 
@@ -75,6 +79,8 @@ int main(int narg, char** arg) {
 	naca_codenum(2) = 0; naca_codenum(3) = 1; naca_codenum(4) = 2;
 	nde::NacaAirfoil naca_airfoil(1.0, naca_codenum);
 	nde::Airfoil airfoil(naca_airfoil);
+	airfoil.writeCoordsToFile("NACA23012.dat",50);
+
 	nde::Vector<nde::Panel2D> panels = airfoil.getPanels(0.01);
 
 	cout << "Angle of attack = 0.0" << endl;
@@ -122,6 +128,8 @@ int main(int narg, char** arg) {
 	naca_codenum(2) = 1; naca_codenum(3) = 1; naca_codenum(4) = 2;
 	nde::NacaAirfoil naca_airfoil(1.0, naca_codenum);
 	nde::Airfoil airfoil(naca_airfoil);
+	airfoil.writeCoordsToFile("NACA23112.dat",50);
+
 	nde::Vector<nde::Panel2D> panels = airfoil.getPanels(0.01);
 
 	cout << "Angle of attack = 0.0" << endl;
@@ -161,6 +169,18 @@ int main(int narg, char** arg) {
 	{
 
 	cout << "/******************************************************/" << endl;
+	cout << "/* File Input airfoil test" << endl;
+	cout << "/******************************************************/" << endl;
+
+	nde::Airfoil airfoil("ex_airfoil1.dat", 0.1);
+	airfoil.writeCoordsToFile("ex_airfoil1_out.dat",50);
+
+	}
+
+
+	{
+
+	cout << "/******************************************************/" << endl;
 	cout << "/* Interpolation test" << endl;
 	cout << "/******************************************************/" << endl;
 
@@ -168,8 +188,8 @@ int main(int narg, char** arg) {
 	nde::Vector<double> y(5);
 
 	for (int i = 0; i < 5; ++i) {
-	x(i) = double(i);
-	y(i) = double(2 * i + 1);
+		x(i) = double(i);
+		y(i) = double(2 * i + 1);
 	}
 
 	nde::Interpolator1D lin_interp(x, y, nde::LINEAR);

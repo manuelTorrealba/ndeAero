@@ -8,11 +8,13 @@
 #ifndef INCLUDE_AIRFOIL_HPP
 #define INCLUDE_AIRFOIL_HPP
 
-#include "Panel.hpp"
+#include "Interpolator.hpp"
 #include "NacaAirfoil.hpp"
+#include "Panel.hpp"
 #include "ThinAirfoil.hpp"
 #include "Vector.hpp"
 #include <cmath>
+#include <string>
 
 namespace nde {
 
@@ -27,15 +29,32 @@ namespace nde {
      *
 	  */
 	class Airfoil {
+
+		enum CoordsType {
+			naca = 1,
+			points = 2
+		};
+
 	public:
-		Airfoil(const NacaAirfoil& naca_airfoil_in);
+		Airfoil(const NacaAirfoil& naca_airfoil);
+		Airfoil(const std::string& data_airfoil_file, double chord);
+		~Airfoil();
+
 		Vector<Panel2D > getPanels(double density) const;
 		double getChord() const;
 		double getPointBottom(double x) const;
 		double getPointTop(double x) const;
+		void writeCoordsToFile(const std::string& file_name,
+									unsigned int n) const;
 
 	private:
-		NacaAirfoil naca_airfoil;
+		CoordsType _coords_type;
+		NacaAirfoil *_naca_airfoil;
+		Interpolator1D *_interp_top;
+		Interpolator1D *_interp_bottom;
+
+		double _chord;
+		
 	};
 
 }

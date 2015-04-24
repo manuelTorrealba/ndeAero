@@ -28,6 +28,10 @@ namespace nde {
 
 	}
 
+	NacaAirfoil NacaAirfoil::operator=(const NacaAirfoil& naca_airfoil) const {
+		return NacaAirfoil(naca_airfoil);
+	}
+
 	void NacaAirfoil::helperCtor() {
 
 		_num_digits = _naca_codenum.size();
@@ -223,7 +227,7 @@ namespace nde {
 	}
 
 	/**
-	  *
+	  * Helper class for the calculation of 5digits max camber position
 	  */
 	NacaFiveDigitsMaxCamber::NacaFiveDigitsMaxCamber(double xf) :
 																	_xf(xf) {
