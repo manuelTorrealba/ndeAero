@@ -10,8 +10,6 @@ TODO List:
 
 	- Calculation of lifting force in a centralized routine.
 	- Calculation of lifting moment.
-	- NACA 5 digits airfoils.
-	- Airfoil representation by coordinates.
 	- Parametrization of deflected (aileron/flaps) surfaces.
 	- Boundary layer solver.
 
@@ -21,4 +19,5 @@ TODO List:
 	- 3D Panel solver (+wake model).
 	- 3D Panel solver validation.
 	- extension to other wing configurations.
-	- addition of tail surfaces. 
+	- addition of tail surfaces.
+

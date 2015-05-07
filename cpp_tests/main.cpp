@@ -2,6 +2,7 @@
 #include "Airfoil.hpp"
 #include "Interpolator.hpp"
 #include "Matrix.hpp"
+#include "TestODESolver.hpp"
 #include "TestThinAirfoil.hpp"
 #include "ThinAirfoil.hpp"
 #include "Vector.hpp"
@@ -175,6 +176,23 @@ int main(int narg, char** arg) {
 	nde::Airfoil airfoil("ex_airfoil1.dat", 0.1);
 	airfoil.writeCoordsToFile("ex_airfoil1_out.dat",50);
 
+	nde::Vector<nde::Panel2D> panels = airfoil.getPanels(0.01);
+
+	cout << "Angle of attack = 0.0" << endl;
+	nde::AerodynamicBody2D body2D(1.0, panels, 0.0);
+
+	body2D.calcPotentialFlow(nde::DIRICHLET_CONSTANT_DOUBLETS);
+	nde::Vector<double> F1 = body2D.getForceCoeffs();
+	cout << "Force Dirichlet 1 = (" << F1(0) << ", " << F1(1) << ")" << endl;
+
+	body2D.calcPotentialFlow(nde::DIRICHLET_CONSTANT_SOURCES_AND_DOUBLETS);
+	nde::Vector<double> F2 = body2D.getForceCoeffs();
+	cout << "Force Dirichlet 2 = (" << F2(0) << "," << F2(1) << ")" << endl;
+
+	body2D.calcPotentialFlow(nde::NEUMANN_CONSTANT_SOURCES_AND_VORTEX);
+	nde::Vector<double> F3 = body2D.getForceCoeffs();
+	cout << "Force Neumann = (" << F3(0) << "," << F3(1) << ")" << endl;
+
 	}
 
 
@@ -203,6 +221,17 @@ int main(int narg, char** arg) {
 	cout << "interpolation at 0.5 = " << spln_interp(0.5) << endl;
 	cout << "interpolation at 2.5 = " << spln_interp(2.5) << endl;
 	cout << "interpolation at 3.5 = " << spln_interp(3.5) << endl;
+
+	}
+
+
+	{
+
+	cout << "/******************************************************/" << endl;
+	cout << "/* ODE Solver test" << endl;
+	cout << "/******************************************************/" << endl;
+
+	nde::testODESolver();
 
 	}
 

@@ -50,12 +50,6 @@ namespace nde {
 			y_top(i) = y_all(k + i);
 		}
 
-		for (unsigned int i = 0; i < n; ++i)
-			std::cout << x_bottom(i) << " " << y_bottom(i) << std::endl;
-
-		for (unsigned int i = 0; i < n; ++i)
-			std::cout << x_top(i) << " " << y_top(i) << std::endl;
-
 		_interp_top = new Interpolator1D(x_top, y_top, SPLINE_MONOTONE);
 		_interp_bottom = new Interpolator1D(x_bottom, y_bottom, SPLINE_MONOTONE);
 

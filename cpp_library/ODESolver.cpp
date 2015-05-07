@@ -21,12 +21,17 @@ Matrix<double> ODESolver::solve(double t0, double tn, double h,
 
 	unsigned int n_steps = std::floor((tn-t0)/h);
 	double h_eff = (tn-t0)/int(n_steps);
-	Matrix<double> y_sol(y0.size(), n_steps);
+	Matrix<double> y_sol(y0.size(), n_steps + 1);
 
+	// initial condition
 	Vector<double> y1 = y0;
-	for (unsigned int i = 0; i < n_steps; ++i) {
+	for (unsigned int j = 0; j < y0.size(); ++j)
+		y_sol(j,0) = y1(j);
+
+	// evolve in time
+	for (unsigned int i = 1; i < n_steps + 1; ++i) {
 		double err_estimate;
-		Vector<double> y1_next = nextStep(t0 + h_eff*i, y1, h_eff, err_estimate);
+		Vector<double> y1_next = nextStep(t0 + h_eff*(i-1), y1, h_eff, err_estimate);
 		y1 = y1_next;
 		for (unsigned int j = 0; j < y0.size(); ++j)
 			y_sol(j,i) = y1(j);
@@ -40,7 +45,11 @@ Matrix<double> ODESolver::solve(double t0, double tn, double h,
 Vector<double> ODESolver::nextStep(double t, const Vector<double>& y,
 									  double h, double& err_estimate) const {
 
-	if (_n == 4) { // fourth order integration
+	if (_n == 1) { // this is the explicit Euler
+
+		return y + 	odeSolverDy(t, y) * h;
+
+	} else if (_n == 4) { // fourth order integration
 
 		// first, normal evaluation
 		Vector<double> y1 = RungeKutta(_n, 4, t, y, h);
@@ -54,9 +63,9 @@ Vector<double> ODESolver::nextStep(double t, const Vector<double>& y,
 
 		err_estimate = (y1 - y1h).norm();
 
-		return y1h;
+		return y1;
 
-	} else if (_n == 5) { // fifth order integration
+	} else if (_n == 6) { // fifth order integration
 
 
 		Vector<double> y1 = RungeKutta(_n, 4, t, y, h);
@@ -66,6 +75,8 @@ Vector<double> ODESolver::nextStep(double t, const Vector<double>& y,
 
 		return y1h;
 
+	} else {
+		// TODO: throw errortime
 	}
 
 }
@@ -82,7 +93,7 @@ Vector<double> ODESolver::RungeKutta(unsigned int n, unsigned int order,
 
 	Matrix<double> k(y.size(), int(n));
 
-	Vector<double> y1 = y * h; // return vector
+	Vector<double> y1 = y; // return vector
 
 	for (unsigned int i = 0; i < n; ++i) {
 
@@ -120,6 +131,7 @@ void ODESolver::RungeKuttaCoefficients(unsigned int n, unsigned int order,
 		c(1) = 1. / 3.;	a(1) = 0.5;
 		c(2) = 1. / 3.;	a(2) = 0.5;
 		c(3) = 1. / 6.;	a(3) = 1.0;
+
 		b(1,0) = 0.5;
 		b(2,1) = 0.5;
 		b(3,2) = 1.0;
@@ -134,6 +146,7 @@ void ODESolver::RungeKuttaCoefficients(unsigned int n, unsigned int order,
 		a(3) = 0.6;
 		a(4) = 1.;
 		a(5) = 7. / 8.;
+
 		b(1,0) = 0.2;
 		b(2,0) = 3. / 40. ; b(2,1) = 9. / 40.;
 		b(3,0) = 0.3; b(3,1) = -0.9; b(3,2) = 6. / 5.;
