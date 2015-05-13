@@ -22,6 +22,14 @@ double _lambda;
 
 };
 
+class Blasius : public ODESolver {
+public:
+Blasius(unsigned int order);
+virtual Vector<double> odeSolverDy(double t, const Vector<double>& y) const;
+
+};
+
+
 void testODESolver();
 
 
