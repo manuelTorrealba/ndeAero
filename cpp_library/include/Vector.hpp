@@ -14,6 +14,43 @@
 
 namespace nde {
 
+/* the template class declaration */
+template<class T>
+class Vector;
+
+
+/* multiplication operators */
+template <class U>
+U operator*(const Vector<U>& lhs, const Vector<U>& rhs) {
+	size_t dim = lhs.size();
+	U s = U(0);
+	for (size_t i = 0; i < dim; ++i)
+		s += lhs(i) * rhs(i);
+	return s;
+}
+
+template<class U>
+Vector<U> operator*(double s, const Vector<U>& v) {
+	size_t dim = v.size();
+	Vector<U> w(dim);
+	for (size_t i = 0; i < dim; ++i)
+		w(i) = v(i) * s;
+	return w;
+}
+
+template<class U>
+Vector<U> operator*(const Vector<U>& v, double s) {
+	size_t dim = v.size();
+	Vector<U> w(dim);
+	for (size_t i = 0; i < dim; ++i)
+		w(i) = v(i) * s;
+	return w;
+}
+
+
+/******************************************************************************/
+/* The vector class declaration 																*/
+/******************************************************************************/
 template<class T>
 class Vector {
 public:
@@ -22,7 +59,7 @@ Vector() : dim(0) {
    ;
 }
 
-Vector(int n) : dim(n) {
+Vector(size_t n) : dim(n) {
 	x = new T[n];
 }
 
@@ -30,90 +67,82 @@ Vector(int n) : dim(n) {
 Vector(const Vector<T>& A) {
 	dim = A.size();
 	if (dim > 0) x = new T[dim];
-	for (int i = 0; i < dim; ++i) *(x + i) = A(i);
+	for (size_t i = 0; i < dim; ++i) *(x + i) = A(i);
 }
 
 Vector<T>& operator=(const Vector<T>& A) {
 	dim = A.size();
 	if (dim > 0) x = new T[dim];
-	for (int i = 0; i < dim; ++i) *(x + i) = A(i);
+	for (size_t i = 0; i < dim; ++i) *(x + i) = A(i);
 	return *this;
 }
 
-Vector(int n, const T v) : dim(n) {
+Vector(size_t n, const T v) : dim(n) {
 	x = new T[n];
-	for (int i = 0; i < dim; ++i) *(x + i) = v;
+	for (size_t i = 0; i < dim; ++i) *(x + i) = v;
 }
 
 
-int size() const {
+size_t size() const {
 	return dim;
 }
 
 void fill(T value) {
-	for (int i = 0; i < dim; ++i) *(x + i) = value;
+	for (size_t i = 0; i < dim; ++i) *(x + i) = value;
 }
 
-void resize(int n) {
+void resize(size_t n) {
 	if (dim > 0) delete[] x;
 	dim = n;
 	x = new T[n];
 }
 
-T operator()(int i) const {
+T operator()(size_t i) const {
 	return *(x + i);
 }
 
-T& operator()(int i) {
+T& operator()(size_t i) {
 	return *(x + i);
 }
 
-T operator*(const Vector<T>& y) const {
-	T s = T(0);
-	for (int i = 0; i < dim; ++i)
-		s += *(x + i) * y(i);
-	return s;
-}
 
 Vector<T> operator+(const Vector<T>& y) const {
 	Vector<T> v(dim);
-	for (int i = 0; i < dim; ++i)
+	for (size_t i = 0; i < dim; ++i)
 		v(i) = this->operator()(i) + y(i);
 	return v;
 }
 
 Vector<T> operator-(const Vector<T>& y) const {
 	Vector<T> v(dim);
-	for (int i = 0; i < dim; ++i)
+	for (size_t i = 0; i < dim; ++i)
 		v(i) = this->operator()(i) - y(i);
 	return v;
 }
 
-Vector<T> operator*(const T& s) const {
-	Vector<T> v(dim);
-	for (int i = 0; i < dim; ++i)
-		v(i) = this->operator()(i) * s;
-	return v;
-}
+/* multiplication operators */
+friend T operator*<T>(const Vector& lhs, const Vector& rhs); // dot product
+friend Vector operator*<T>(double s, const Vector& v); // scalar * vector
+friend Vector operator*<T>(const Vector& v, double s); // vector * scalar
 
 Vector<T> operator/(const T& s) const {
 	Vector<T> v(dim);
-	for (int i = 0; i < dim; ++i)
+	for (size_t i = 0; i < dim; ++i)
 		v(i) = this->operator()(i) / s;
 	return v;
 }
 
 /* returns a block of the vector*/
-Vector<T> block(int i_end) const {
+Vector<T> block(size_t i_end) const {
 	Vector<T> v(i_end + 1);
-	for (int i = 0; i <= i_end; ++i)
+	for (size_t i = 0; i <= i_end; ++i)
 		v(i) = *(x + i);
 	return v;
 }
 
-Vector<T> block(int i_start, int i_end) const {
+Vector<T> block(size_t i_start, size_t i_end) const {
 	Vector<T> v(i_end - i_start + 1);
-	for (int i = 0; i <= i_end - i_start; ++i)
+	for (size_t i = 0; i <= i_end - i_start; ++i)
 		v(i) = *(x + i_start + i);
 	return v;
 }
@@ -124,7 +153,7 @@ double norm() const {
 }
 
 /* change the position of two elements in the vector */
-void swapElements(int i_1, int i_2) {
+void swapElements(size_t i_1, size_t i_2) {
 	T e_1 = *(x + i_1);
 	*(x + i_1) = *(x + i_2);
 	*(x + i_2) = e_1;
@@ -133,15 +162,15 @@ void swapElements(int i_1, int i_2) {
 /* returns the biggest element (absolute value) of the vector */
 T biggestAbs() const {
 	double big = std::abs(*x);
-	for (int i = 1; i < dim; ++i)
+	for (size_t i = 1; i < dim; ++i)
 		if (std::abs(*(x + i)) > big) big = std::abs(*(x + i));
 	return big;
 }
 
 /* returns the index of the biggest element (absolute value) of the vector */
-int biggestAbsIndex() const {
-	int i = 0;
-	for (int j = 1; j < dim; ++j)
+size_t biggestAbsIndex() const {
+	size_t i = 0;
+	for (size_t j = 1; j < dim; ++j)
 		if (std::abs(*(x + j)) > std::abs(*(x + i))) i = j;
 	return i;
 }
@@ -161,8 +190,10 @@ const T* end() const {
 
 private:
 	T* x;
-	int dim;
+	size_t dim;
 };
+
+
 
 }
 

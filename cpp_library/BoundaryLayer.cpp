@@ -42,7 +42,6 @@ Vector<double> BoundaryLayer::odeSolverDy(double x,
 
 double BoundaryLayer::Cf(double H32, double Re_d2) const {
 
-	double h12 = H12(H32, Re_d2);
 	double eps;
 
 	if (!turbulentTransition(H32, Re_d2)) {
@@ -50,19 +49,25 @@ double BoundaryLayer::Cf(double H32, double Re_d2) const {
 
 		if (H32 >= 1.57258)
 			eps = 1.372391 - 4.226253 * H32 + 2.221687 * H32 * H32;
-		else if (H32 >= 1.51509)
+		else if (H32 >= 1.51509) {
+			double h12 = H12(H32, Re_d2);
 			eps = 2.512589 - 1.686095 * h12 + 0.391541 * h12 * h12
 					  - 0.031729 * h12 * h12 * h12;
+		}
 		else
-			eps = 0.0; // Laminar separation happens here!
+			eps = 0.0; // laminar separation!
 
 		return eps / Re_d2;
 
 	} else {
 		// turbulent boundary layer laws
 
-		eps = std::pow((h12 - 1.) * Re_d2, -0.232) * std::exp(-1.26 * h12);	
-		return 0.045716 * eps;
+		if (H32 >= 1.46) {
+			double h12 = H12(H32, Re_d2);
+			eps = std::pow((h12 - 1.) * Re_d2, -0.232) * std::exp(-1.26 * h12);	
+			return 0.045716 * eps;
+		} else
+			return 0.0; // turbulent separation!
 
 	}
 
@@ -76,9 +81,12 @@ double BoundaryLayer::Cd(double H32, double Re_d2) const {
 			double D = 7.853976 - 10.260551 * H32 + 3.418898 * H32 * H32;
 			return 2.0 * D / Re_d2;
 		} else
-			return 0.0; // Laminar separation happens!
+			return 0.0; // laminar separation!
 	} else {	// turbulent boundary layer laws
+		if (H32 >= 1.46)
 			return 0.01 * std::pow((H12(H32, Re_d2) - 1.) * Re_d2 ,-0.1666667);
+		else
+			return 0.0; // turbulent separation!
 	}
 
 }
@@ -94,10 +102,13 @@ double BoundaryLayer::H12(double h32, double Re_d2) const {
 					  + 227.18220 * h32 * h32)
 					  * std::sqrt(h32 - 1.51509);
 		else
-			return 0.0; 	// Laminar separation happens!
+			return 0.0; 	// laminar separation!
 
 	} else { // turbulent boundary layer laws
+		if (h32 >= 1.46)
 			return (11. * h32 + 15.) / (48. * h32 - 59.);
+		else
+			return 0.0; // turbulent separation!
 	}
 
 }

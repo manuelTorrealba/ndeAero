@@ -30,6 +30,9 @@ namespace nde {
 		void changeAngleAttack(double angle_attack);
 		void calcPotentialFlow(PanelMethodType panel_method_type);
 		Vector<double> getForceCoeffs() const;
+		Vector<double> getControlPointsDistances(const Vector<double>& p0) const;
+		Vector<double> getVelocities() const;
+
 
 		private:
 		double _chord;
