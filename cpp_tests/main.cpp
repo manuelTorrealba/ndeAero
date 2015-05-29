@@ -65,6 +65,7 @@ int main(int narg, char** arg) {
 	nde::Vector<double> F3 = body2D.getForceCoeffs();
 	cout << "Force Neumann = (" << F3(0) << "," << F3(1) << ")" << endl;
 
+	body2D.writeResultsToFile("NACA0010_results.dat");
 	
 	}
 

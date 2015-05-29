@@ -30,20 +30,24 @@ namespace nde {
 		void changeAngleAttack(double angle_attack);
 		void calcPotentialFlow(PanelMethodType panel_method_type);
 		Vector<double> getForceCoeffs() const;
-		Vector<double> getControlPointsDistances(const Vector<double>& p0) const;
+		Vector<double> getControlPointsDistances() const;
 		Vector<double> getVelocities() const;
+		void writeResultsToFile(const std::string& file_name) const;
 
-
-		private:
+	private:
 		double _chord;
 		double _angle_attack;
 		Vector<Panel2D> _panels;
 		Vector<double> _incident_flow;
 
-		Vector<double> _x;
-		Vector<double> _v;
-		Vector<double> _cp;
-		Vector<double> _F;
+		Vector<double> _v_x;
+		Vector<Vector<double> > _x;
+		Vector<double> _d_length_x;
+		Vector<Vector<double> > _normal_x;
+		Vector<double> _cp_x;
+
+		Vector<double> _c_F;
+		double _c_M0;
 
 	};
 
