@@ -12,27 +12,30 @@
 
 namespace nde {
 
+/**
+ *
+ * Boundary Layer equations from reference in Viscous-Inviscid
+ * Analysis of Transonic and Low Reynolds Number Airfoils
+ * Mark Drela and Michael B. Giles
+ * AIAA Journal 1987.
+ */
+
 class BoundaryLayer : public ODESolver {
 public:
-	BoundaryLayer(double Re, double U_inf, double l,
-					const Interpolator1D& U, const Interpolator1D& dU,
-					const Interpolator1D& V0);
+	BoundaryLayer(double Re, const Interpolator1D& U);
 
 	virtual Vector<double> odeSolverDy(double x, const Vector<double>& y) const;
 
 private:
 	double _Re;
-	double _U_inf;
-	double _l;
-	double _roughness;
+	double _roughness; // TODO: initialize roughness!
 	Interpolator1D _U;
-	Interpolator1D _dU;
-	Interpolator1D _V0;
 
-	double Cf(double H32, double Re_d2) const;
-	double Cd(double H32, double Re_d2) const;
-	double H12(double H32, double Re_d2) const;
-	bool turbulentTransition(double H32, double Re_d2) const;
+	double calcH12(double h32, bool turbulent) const;
+	double calcCf(double h32, double Re_d2, bool turbulent) const;
+	double calcCd(double h32, double Re_d2, bool turbulent) const;
+
+	bool turbulentTransition(double h, double Re_theta) const;
 
 };
 
@@ -42,14 +45,19 @@ class AirfoilBoundaryLayer {
 public:
 	AirfoilBoundaryLayer(double U_inf,
 							double chord,
-							const Vector<double>& d_x,
+							const Vector<double>& d_x, // this is the arc-length vector
+																// measured from the
+																// botton-surface trailing edge
 							const Vector<double>& v_x);
+
+	virtual ~AirfoilBoundaryLayer();
 
 private:
 	double _U_inf;
 	double _chord;
-	BoundaryLayer _boundary_layer_top;
-	BoundaryLayer _boundary_layer_bottom;
+	double _Re;
+	BoundaryLayer* _boundary_layer_top;
+	BoundaryLayer* _boundary_layer_bottom;
 };
 
 } /* end of namespace nde */

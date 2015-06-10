@@ -30,11 +30,19 @@ namespace nde {
         Interpolator1D(const Vector<double>& x,
                 const Vector<double>& y,
                 InterpolationType interp_type);
+
         /**
                 Interpolate main function.
                 @param x	: coordinate to interpolate to.
          */
         double operator()(double x) const;
+
+		  /**
+					Calculation of a derivate with order h.
+					@param h: order of the derivative.
+					@param x: coordinate to interpolate to.
+			*/
+			double operator()(unsigned int h, double x) const;
 
     protected:
         InterpolationType interpolation_type; /** < interpolation type	*/
@@ -42,14 +50,17 @@ namespace nde {
         Vector<double> y_values; /** < Vector containing y ordinates values*/
 
     private:
-        Vector<double> extrap_values; //! _extrapvalues[0] is the low tail value and
-        //! _extrapvalues[1] is the upper tail value.
-        Matrix<double> spline_coeffs; //! dimensions (from 0 to polynomial order, from 0 to num_nodes-2)
+        Vector<double> extrap_values; //! _extrapvalues[0] is the low tail 
+			//! value and _extrapvalues[1] is the upper tail value.
+        Matrix<double> spline_coeffs; //! dimensions (from 0 to polynomial 
+												  //! order, from 0 to num_nodes-2)
         /**
-         * Function to calculate the spline value for a given interval at a given abscissas.
+         * Function to calculate the spline value for a given interval at
+			* a given abscissas.
          * This function needs _xvalues and _splinecoeffs properly initialised.
          */
-        double calcSplineValue(int interval, double x) const;
+        double calcSplineValue(unsigned int interval, unsigned int h, 
+										double x) const;
     };
 
     /***************************************************************************************/
@@ -73,3 +84,5 @@ namespace nde {
 
 
 #endif
+
+

@@ -5,7 +5,10 @@
  * Created on May 7, 2015, 9:53 AM
  */
 
+#include "Test.hpp"
 #include "TestODESolver.hpp"
+
+#include <iostream>
 
 namespace nde {
 
@@ -45,8 +48,11 @@ Vector<double> Blasius::odeSolverDy(double t, const Vector<double>& y) const {
 
 
 
-void testODESolver() {
+bool testODESolver() {
 
+	std::cout << "/******************************************************/" << std::endl;
+	std::cout << "/* ODE Solver test" << std::endl;
+	std::cout << "/******************************************************/" << std::endl;
 
 	{
 
@@ -57,19 +63,19 @@ void testODESolver() {
 
 	std::cout << "EULER" << std::endl;
 	SimpleExponential simple_exponential_euler(1.0, 1);
-	Matrix<double> y_euler = simple_exponential_euler.solve(0., 1., 0.1, y0);
+	Matrix<double> y_euler = simple_exponential_euler.solve(0., 1., 10, y0);
 	for (unsigned int i = 0; i < y_euler.numcols(); ++i)
 		std::cout << y_euler(0,i) << std::endl;
 
 	std::cout << "RK4" << std::endl;
 	SimpleExponential simple_exponential_rk4(1.0, 4);
-	Matrix<double> y_rk4 = simple_exponential_rk4.solve(0., 1., 0.1, y0);
+	Matrix<double> y_rk4 = simple_exponential_rk4.solve(0., 1., 10, y0);
 	for (unsigned int i = 0; i < y_rk4.numcols(); ++i)
 		std::cout << y_rk4(0,i) << std::endl;
 
 	std::cout << "RK5" << std::endl;
 	SimpleExponential simple_exponential_rk5(1.0, 6);
-	Matrix<double> y_rk5 = simple_exponential_rk5.solve(0., 1., 0.1, y0);
+	Matrix<double> y_rk5 = simple_exponential_rk5.solve(0., 1., 10, y0);
 	for (unsigned int i = 0; i < y_rk5.numcols(); ++i)
 		std::cout << y_rk5(0,i) << std::endl;
 
@@ -88,28 +94,28 @@ void testODESolver() {
 
 	std::cout << "EULER" << std::endl;
 	Blasius blasius_euler(1);
-	Matrix<double> y_euler = blasius_euler.solve(0., 8., 0.5, y0);
+	Matrix<double> y_euler = blasius_euler.solve(0., 8., 20, y0);
 	for (unsigned int i = 0; i < y_euler.numcols(); ++i)
 		std::cout << y_euler(0,i) << "," << y_euler(1,i)
 					 << "," << y_euler(2,i) << std::endl;
 
 	std::cout << "RK4" << std::endl;
 	Blasius blasius_rk4(4);
-	Matrix<double> y_rk4 = blasius_rk4.solve(0., 8., 0.5, y0);
+	Matrix<double> y_rk4 = blasius_rk4.solve(0., 8., 20, y0);
 	for (unsigned int i = 0; i < y_rk4.numcols(); ++i)
 		std::cout << y_rk4(0,i) << "," << y_rk4(1,i)
 					 << "," << y_rk4(2,i) << std::endl;
 
 	std::cout << "RK5" << std::endl;
 	Blasius blasius_rk5(6);
-	Matrix<double> y_rk5 = blasius_rk5.solve(0., 8., 0.5, y0);
+	Matrix<double> y_rk5 = blasius_rk5.solve(0., 8., 20, y0);
 	for (unsigned int i = 0; i < y_rk5.numcols(); ++i)
 		std::cout << y_rk5(0,i) << "," << y_rk5(1,i)
 					 << "," << y_rk5(2,i) << std::endl;
 
 	}
 
-	return;
+	return true;
 
 }
 

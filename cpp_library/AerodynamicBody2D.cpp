@@ -16,23 +16,18 @@ namespace nde {
 
 	AerodynamicBody2D::AerodynamicBody2D(
 		   double chord,
-		   const Vector<Panel2D>& panels,
-		   double angle_attack)
-	: _chord(chord), _panels(panels), _angle_attack(angle_attack) {
-	  _incident_flow.resize(2);
-	  _incident_flow(0) = cos(_angle_attack);
-	  _incident_flow(1) = sin(_angle_attack);
+		   const Vector<Panel2D>& panels)
+	: _chord(chord), _panels(panels) {
+		;
 	}
 
-	void AerodynamicBody2D::changeAngleAttack(double angle_attack) {
+	void AerodynamicBody2D::calcPotentialFlow(double angle_attack,
+														PanelMethodType panel_method_type) {
+
 		_angle_attack = angle_attack;
 	  _incident_flow.resize(2);
 	  _incident_flow(0) = cos(_angle_attack);
 	  _incident_flow(1) = sin(_angle_attack);
-	}
-
-	void AerodynamicBody2D::calcPotentialFlow
-												(PanelMethodType panel_method_type) {
 
 		size_t num_panels = _panels.size();
 
@@ -82,10 +77,11 @@ namespace nde {
 				_cp_x.resize(num_panels - 1);
 				for (size_t i = 0; i < num_panels - 1; ++i) {
 			    	_x(i) = 0.5 * (_panels(i + 1).getMidPoint()
-									 + _panels(i).getMidPoint());
+									 + _panels(i).getMidPoint()) / _chord;
 					_d_length_x(i) = (_panels(i + 1).getMidPoint()
-  								      - _panels(i).getMidPoint()).norm();
-			      _v_x(i) = (doublets(i + 1) - doublets(i)) / _d_length_x(i);
+  								      - _panels(i).getMidPoint()).norm() / _chord;
+			      _v_x(i) = std::abs((doublets(i + 1) - doublets(i))
+										   / (_d_length_x(i) * _chord));
 					_normal_x(i) = -0.5 * (_panels(i + 1).getNormal()
 								 		      + _panels(i).getNormal());
 					_cp_x(i) = 1 - _v_x(i) * _v_x(i);
@@ -148,11 +144,11 @@ namespace nde {
  			      Vector<double> mt = 0.5 * (_panels(i + 1).getTangent()
 													 + _panels(i).getTangent());
 					_d_length_x(i) = (_panels(i + 1).getMidPoint()
-  								      - _panels(i).getMidPoint()).norm();
-			      _v_x(i) = _incident_flow * mt + (doublets(i + 1)
-							 								 - doublets(i)) / _d_length_x(i);
+  								      - _panels(i).getMidPoint()).norm() / _chord;
+			      _v_x(i) = std::abs(_incident_flow * mt + (doublets(i + 1)
+			 								 - doublets(i)) / (_d_length_x(i) * _chord));
 			    	_x(i) = 0.5 * (_panels(i + 1).getMidPoint()
-									 + _panels(i).getMidPoint());
+									 + _panels(i).getMidPoint()) / _chord;
 					_normal_x(i) = -0.5 * (_panels(i + 1).getNormal()
 								 		      + _panels(i).getNormal());
 				   _cp_x(i) = 1 - _v_x(i) * _v_x(i);
@@ -224,14 +220,15 @@ namespace nde {
 				_cp_x.resize(num_panels);
 
 				for (size_t i = 0; i < num_panels; ++i) {
-					_x(i) = _panels(i).getControlPointOut();
+					_x(i) = _panels(i).getControlPointOut() / _chord;
 					Vector<double> p = _panels(i).getControlPointOut();
 					_v_x(i) = _incident_flow * _panels(i).getTangent();
 					for (size_t j = 0; j < num_panels; ++j)
 					_v_x(i) += (_panels(j).calcConstantSourceSpeed(p) * sources(j)
 						 + _panels(j).calcConstantVortexSpeed(p) * vortex)
 	 					 * _panels(i).getTangent();
-					_d_length_x(i) = _panels(i).getLength();
+					_v_x(i) = std::abs(_v_x(i));
+					_d_length_x(i) = _panels(i).getLength() / _chord;
 					_normal_x(i) = -1.0 * _panels(i).getNormal();
 					_cp_x(i) = 1 - _v_x(i) * _v_x(i);
 				}
@@ -251,13 +248,15 @@ namespace nde {
 			Fg = Fg + (_cp_x(i) * _d_length_x(i)) * _normal_x(i);
 			_c_M0 = _c_M0 - (_cp_x(i) * _d_length_x(i)) * _x(i)(0) * _normal_x(i)(1);
 		}
-		Fg = Fg / _chord;
-		_c_M0 = _c_M0 / (_chord*_chord);
 
 		_c_F.resize(2);
 		_c_F(0) =  Fg(0) * cos(_angle_attack) + Fg(1) * sin(_angle_attack);
 		_c_F(1) = -Fg(0) * sin(_angle_attack) + Fg(1) * cos(_angle_attack);
 
+	}
+
+	double AerodynamicBody2D::getAngleAttack() const {
+		return _angle_attack;
 	}
 
 	Vector<double> AerodynamicBody2D::getForceCoeffs() const {

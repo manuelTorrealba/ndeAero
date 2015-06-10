@@ -24,11 +24,12 @@ namespace nde {
 	public:
 		AerodynamicBody2D(
 				 double chord,
-				 const Vector<Panel2D>& panels,
-				 double angle_attack);
+				 const Vector<Panel2D>& panels);
 
-		void changeAngleAttack(double angle_attack);
-		void calcPotentialFlow(PanelMethodType panel_method_type);
+		void calcPotentialFlow(double angle_attack,
+									PanelMethodType panel_method_type);
+
+		double getAngleAttack() const;
 		Vector<double> getForceCoeffs() const;
 		Vector<double> getControlPointsDistances() const;
 		Vector<double> getVelocities() const;

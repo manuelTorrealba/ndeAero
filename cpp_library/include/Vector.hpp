@@ -175,6 +175,28 @@ size_t biggestAbsIndex() const {
 	return i;
 }
 
+/* returns the smallest element (absolute value) of the vector */
+T smallestAbs() const {
+	double small = std::abs(*x);
+	for (size_t i = 1; i < dim; ++i)
+		if (std::abs(*(x + i)) < small) small = std::abs(*(x + i));
+	return small;
+}
+
+/* returns the index of the smallest element (absolute value) of the vector */
+size_t smallestAbsIndex() const {
+	size_t i = 0;
+	for (size_t j = 1; j < dim; ++j)
+		if (std::abs(*(x + j)) < std::abs(*(x + i))) i = j;
+	return i;
+}
+
+/* returns the value of the last component */
+T last_v() const {
+	return *(x + dim - 1);
+}
+
+/* destructor */
 virtual ~Vector() {
 	//std::cout << "Exterminate Vector!" << std::endl;
 	if (dim > 0) delete[] x;

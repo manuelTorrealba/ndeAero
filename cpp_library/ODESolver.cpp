@@ -16,11 +16,10 @@ ODESolver::ODESolver(unsigned int n, double max_error) :
 }
 
 
-Matrix<double> ODESolver::solve(double t0, double tn, double h,
+Matrix<double> ODESolver::solve(double t0, double tn, unsigned int n_steps,
 										const Vector<double>& y0) const {
 
-	unsigned int n_steps = std::floor((tn-t0)/h);
-	double h_eff = (tn-t0)/int(n_steps);
+	double h = (tn-t0)/double(n_steps);
 	Matrix<double> y_sol(y0.size(), n_steps + 1);
 
 	// initial condition
@@ -31,7 +30,7 @@ Matrix<double> ODESolver::solve(double t0, double tn, double h,
 	// evolve in time
 	for (unsigned int i = 1; i < n_steps + 1; ++i) {
 		double err_estimate;
-		Vector<double> y1_next = nextStep(t0 + h_eff*(i-1), y1, h_eff, err_estimate);
+		Vector<double> y1_next = nextStep(t0 + h*(i-1), y1, h, err_estimate);
 		y1 = y1_next;
 		for (unsigned int j = 0; j < y0.size(); ++j)
 			y_sol(j,i) = y1(j);

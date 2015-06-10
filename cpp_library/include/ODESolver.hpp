@@ -5,6 +5,9 @@
  * Created on May 4, 2015, 11:00 PM
  */
 
+#ifndef INCLUDE_ODESOLVER_HPP
+#define INCLUDE_ODESOLVER_HPP
+
 #include "Vector.hpp"
 #include "Matrix.hpp"
 
@@ -15,7 +18,7 @@ class ODESolver {
 public:
 	ODESolver(unsigned int n, double max_error);
 	
-	Matrix<double> solve(double t0, double tn, double h,
+	Matrix<double> solve(double t0, double tn, unsigned int n_steps,
 									const Vector<double>& y0) const;
 
 	Vector<double> nextStep(double t, const Vector<double>& y, double h,
@@ -39,4 +42,6 @@ private:
 
 
 } /*end of namespace nde */
+
+#endif
 

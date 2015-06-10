@@ -30,8 +30,6 @@ virtual Vector<double> odeSolverDy(double t, const Vector<double>& y) const;
 };
 
 
-void testODESolver();
-
 
 }
 
