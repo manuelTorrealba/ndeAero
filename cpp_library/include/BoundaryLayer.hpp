@@ -14,17 +14,19 @@ namespace nde {
 
 /**
  *
- * Boundary Layer equations from reference in Viscous-Inviscid
- * Analysis of Transonic and Low Reynolds Number Airfoils
- * Mark Drela and Michael B. Giles
- * AIAA Journal 1987.
+ * Boundary Layer equations from reference
+ * A Computer Program for the Design and Analysis of Low-Speed Airfoils
+ * Richard Eppler, Dan M. Somers
  */
 
 class BoundaryLayer : public ODESolver {
 public:
 	BoundaryLayer(double Re, const Interpolator1D& U);
 
-	virtual Vector<double> odeSolverDy(double x, const Vector<double>& y) const;
+	virtual Vector<double> odeSolverDy(double x,
+												const Vector<double>& y) const;
+	virtual Vector<double> odeSolverJumpy(double x,
+													const Vector<double>& y) const;
 
 private:
 	double _Re;
@@ -51,6 +53,10 @@ public:
 							const Vector<double>& v_x);
 
 	virtual ~AirfoilBoundaryLayer();
+
+	void solveBoundaryLayerFlow() const;
+	double getDeltaCD() const;
+	double getDeltaCL() const;
 
 private:
 	double _U_inf;

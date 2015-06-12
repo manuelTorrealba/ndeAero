@@ -30,7 +30,11 @@ Matrix<double> ODESolver::solve(double t0, double tn, unsigned int n_steps,
 	// evolve in time
 	for (unsigned int i = 1; i < n_steps + 1; ++i) {
 		double err_estimate;
-		Vector<double> y1_next = nextStep(t0 + h*(i-1), y1, h, err_estimate);
+		double t = t0 + h*(i-1);
+		// apply the jump conditions
+		y1 = y1 + odeSolverJumpy(t, y1);
+		// evolve from t, t+h in time
+		Vector<double> y1_next = nextStep(t, y1, h, err_estimate);
 		y1 = y1_next;
 		for (unsigned int j = 0; j < y0.size(); ++j)
 			y_sol(j,i) = y1(j);

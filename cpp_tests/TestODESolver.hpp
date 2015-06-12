@@ -16,17 +16,18 @@ class SimpleExponential : public ODESolver {
 public:
 SimpleExponential(double lambda, unsigned int order);
 virtual Vector<double> odeSolverDy(double t, const Vector<double>& y) const;
+virtual Vector<double> odeSolverJumpy(double t, const Vector<double>& y) const;
 
 private:
 double _lambda;
-
 };
+
 
 class Blasius : public ODESolver {
 public:
 Blasius(unsigned int order);
 virtual Vector<double> odeSolverDy(double t, const Vector<double>& y) const;
-
+virtual Vector<double> odeSolverJumpy(double t, const Vector<double>& y) const;
 };
 
 

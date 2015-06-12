@@ -16,37 +16,66 @@ BoundaryLayer::BoundaryLayer(double Re, const Interpolator1D& U)
 	_roughness = 0.;
 }
 
-Vector<double> BoundaryLayer::odeSolverDy(double x,
-									const Vector<double>& y) const {
 
-	bool laminar_separation = false;
-	bool turbulent_separation = false;
+Vector<double> BoundaryLayer::odeSolverJumpy(double x,
+														const Vector<double>& y) const {
 
 	// outer flow functions
 	double u = _U(x);
-	double du = _U(1, x);
-
 	double d2 = y(0);
 	double d3 = y(1);
+	double turbulent_flag = y(2);
+	double separation_flag = y(3);
+
+	// check for turbulent regime
 	double Re_d2 = _Re * u * d2;
 	double h32 = d3 / d2;
-	bool is_turbulent = turbulentTransition(h32, Re_d2);
+	bool is_turbulent = (turbulent_flag < -0.5 || turbulentTransition(h32, Re_d2));
 
-	bool is_attached = true;
-	if (!is_turbulent && h32 < 1.51509)
-		is_turbulent = true; // continue with turbulent equations
-									// in practise what happens is future reattachement
-									// of the flow.
-	else if (is_turbulent && h32 < 1.46)
-		is_attached = false;
+	// check for the flow still attached
+	bool is_attached = !(separation_flag < -0.5);
 
-	std::cout << "x = " << x << ", U = " << u << ", dU = " << du
-				 << ", turb = " << is_turbulent << ", attached = " << is_attached
-				 << ", d2 = " << d2 << ", d3 = " << d3
-				 << ", h32 = " << h32 << std::endl;
-
-	Vector<double> dy(2, 0.0);
+	// if it is still attached check for conditions
+	// the flow being attached or not at this stage
 	if (is_attached) {
+
+		// Continue with turbulent equations.
+		// In practise what probably will happen is that
+		// flow will be reattached at a later section.
+		if (!is_turbulent && h32 < 1.51509) is_turbulent = true; 
+
+		//separation surely happens.
+		if (is_turbulent && h32 < 1.46) is_attached = false;
+
+	}
+
+	// apply a negative jump for the turbulent and attached variables.
+	Vector<double> Jump_y(4, 0.0);
+	if (is_turbulent) Jump_y(2) = -1.;
+	if (!is_attached) Jump_y(3) = -1.;
+
+	return Jump_y;
+
+}
+
+Vector<double> BoundaryLayer::odeSolverDy(double x,
+									const Vector<double>& y) const {
+
+	bool is_turbulent = (y(2) < -0.5);
+	bool is_attached = !(y(3) < -0.5);
+
+	Vector<double> dy(4, 0.0);
+	if (is_attached) {
+
+		// outer flow functions
+		double u = _U(x);
+		double du = _U(1, x);
+
+		// boundary layer current status
+		double d2 = y(0);
+		double d3 = y(1);
+		double Re_d2 = _Re * u * d2;
+		double h32 = d3 / d2;
 
 		double h12 = calcH12(h32, is_turbulent);
 		double cf = calcCf(h32, Re_d2, is_turbulent);
@@ -206,20 +235,22 @@ AirfoilBoundaryLayer::AirfoilBoundaryLayer(double U_inf, double chord,
 	// start with blausius solution
 	double x_0_top = 0.01;
 	double Re_0_top = _Re * U_top(x_0_top) * x_0_top;
-	Vector<double> y0_top(2);
-	y0_top(0) = 0.29004 * x_0_top / std::sqrt(Re_0_top);
-	y0_top(1) = 1.61998 * y0_top(0);
+	Vector<double> y0_top(4);
+	y0_top(0) = 0.29004 * x_0_top / std::sqrt(Re_0_top); // blausius solution
+	y0_top(1) = 1.61998 * y0_top(0); // blausius solution
+	y0_top(2) = 0.; // assume flow initially laminar
+	y0_top(3) = 0.; // assume flow initially attached
 
 	Matrix<double> y_top = _boundary_layer_top->solve
-									(x_0_top, x_top.last_v(), std::pow(2, 14), y0_top);
+									(x_0_top, x_top.last_v(), std::pow(2, 8), y0_top);
 
-/*
 	std::cout<< "boundary layer top" << std::endl;
 	for (size_t i = 0; i < 21; ++i) {
 		double s = i * x_top.last_v() / 20.;
-		std::cout << s << ", " << y_top(0, i) << ", " << y_top(1, i) << std::endl;
+		std::cout << s << ", " << y_top(0, i) << ", " << y_top(1, i) <<
+								", " << y_top(2, i) << ", " << y_top(3, i) << std::endl;
 	}
-*/
+
 
 }
 

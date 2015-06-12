@@ -19,12 +19,15 @@ public:
 	ODESolver(unsigned int n, double max_error);
 	
 	Matrix<double> solve(double t0, double tn, unsigned int n_steps,
-									const Vector<double>& y0) const;
+							const Vector<double>& y0) const;
 
 	Vector<double> nextStep(double t, const Vector<double>& y, double h,
 								double& err_estimate) const;
 
 	virtual Vector<double> odeSolverDy(double t,
+												const Vector<double>& y) const = 0;
+
+	virtual Vector<double> odeSolverJumpy(double t,
 													const Vector<double>& y) const = 0;
 
 private:

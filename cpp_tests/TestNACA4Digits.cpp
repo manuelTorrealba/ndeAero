@@ -44,7 +44,7 @@ bool testNACA4Digits() {
 
 	body2D.writeResultsToFile("NACA0012_results_dsd.dat");
 
-	body2D.calcPotentialFlow(3.0 * M_PI / 180.0,
+	body2D.calcPotentialFlow(20.0 * M_PI / 180.0,
 									 nde::NEUMANN_CONSTANT_SOURCES_AND_VORTEX);
 	nde::Vector<double> F3 = body2D.getForceCoeffs();
 	cout << "Force Neumann = (" << F3(0) << "," << F3(1) << ")" << endl;

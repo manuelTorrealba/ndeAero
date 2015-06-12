@@ -25,6 +25,10 @@ Vector<double> SimpleExponential::odeSolverDy(double t,
 	return Vector<double>(y.size(), -y(0) * _lambda);
 }
 
+Vector<double> SimpleExponential::odeSolverJumpy(double t,
+															const Vector<double>& y) const {
+	return Vector<double>(y.size(), 0.0);
+}
 
 /******************************************************************************/
 /* Blasius boundary Layer
@@ -45,7 +49,10 @@ Vector<double> Blasius::odeSolverDy(double t, const Vector<double>& y) const {
 
 };
 
-
+Vector<double> Blasius::odeSolverJumpy(double t, const Vector<double>& y
+																							) const {
+	return Vector<double>(y.size(), 0.0);
+}
 
 
 bool testODESolver() {
