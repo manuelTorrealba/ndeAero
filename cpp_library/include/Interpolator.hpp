@@ -44,6 +44,11 @@ namespace nde {
 			*/
 			double operator()(unsigned int h, double x) const;
 
+			/**
+					Get x_min and x_max interpolation range
+			 */
+			Vector<double> getInterpolationRange() const;
+
     protected:
         InterpolationType interpolation_type; /** < interpolation type	*/
         Vector<double> x_values; /** < Vector containing x abscissas values*/

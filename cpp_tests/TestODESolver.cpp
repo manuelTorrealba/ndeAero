@@ -72,19 +72,19 @@ bool testODESolver() {
 	SimpleExponential simple_exponential_euler(1.0, 1);
 	Matrix<double> y_euler = simple_exponential_euler.solve(0., 1., 10, y0);
 	for (unsigned int i = 0; i < y_euler.numcols(); ++i)
-		std::cout << y_euler(0,i) << std::endl;
+		std::cout << y_euler(0,i) << ", " << y_euler(1,i) << std::endl;
 
 	std::cout << "RK4" << std::endl;
 	SimpleExponential simple_exponential_rk4(1.0, 4);
 	Matrix<double> y_rk4 = simple_exponential_rk4.solve(0., 1., 10, y0);
 	for (unsigned int i = 0; i < y_rk4.numcols(); ++i)
-		std::cout << y_rk4(0,i) << std::endl;
+		std::cout << y_rk4(0,i) << ", " << y_rk4(1,i) << std::endl;
 
 	std::cout << "RK5" << std::endl;
 	SimpleExponential simple_exponential_rk5(1.0, 6);
 	Matrix<double> y_rk5 = simple_exponential_rk5.solve(0., 1., 10, y0);
 	for (unsigned int i = 0; i < y_rk5.numcols(); ++i)
-		std::cout << y_rk5(0,i) << std::endl;
+		std::cout << y_rk5(0,i) << ", " << y_rk5(1,i) << std::endl;
 
 	}
 
@@ -104,21 +104,21 @@ bool testODESolver() {
 	Matrix<double> y_euler = blasius_euler.solve(0., 8., 20, y0);
 	for (unsigned int i = 0; i < y_euler.numcols(); ++i)
 		std::cout << y_euler(0,i) << "," << y_euler(1,i)
-					 << "," << y_euler(2,i) << std::endl;
+					 << "," << y_euler(2,i) << "," << y_euler(3,i) << std::endl;
 
 	std::cout << "RK4" << std::endl;
 	Blasius blasius_rk4(4);
 	Matrix<double> y_rk4 = blasius_rk4.solve(0., 8., 20, y0);
 	for (unsigned int i = 0; i < y_rk4.numcols(); ++i)
 		std::cout << y_rk4(0,i) << "," << y_rk4(1,i)
-					 << "," << y_rk4(2,i) << std::endl;
+					 << "," << y_rk4(2,i) << "," << y_rk4(3,i) << std::endl;
 
 	std::cout << "RK5" << std::endl;
 	Blasius blasius_rk5(6);
 	Matrix<double> y_rk5 = blasius_rk5.solve(0., 8., 20, y0);
 	for (unsigned int i = 0; i < y_rk5.numcols(); ++i)
 		std::cout << y_rk5(0,i) << "," << y_rk5(1,i)
-					 << "," << y_rk5(2,i) << std::endl;
+					 << "," << y_rk5(2,i) << "," << y_rk5(3,i) << std::endl;
 
 	}
 

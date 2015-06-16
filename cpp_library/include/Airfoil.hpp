@@ -44,6 +44,7 @@ namespace nde {
 		double getChord() const;
 		double getPointBottom(double x) const;
 		double getPointTop(double x) const;
+
 		void writeCoordsToFile(const std::string& file_name,
 									unsigned int n) const;
 

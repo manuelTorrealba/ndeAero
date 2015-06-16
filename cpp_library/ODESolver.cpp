@@ -16,28 +16,42 @@ ODESolver::ODESolver(unsigned int n, double max_error) :
 }
 
 
-Matrix<double> ODESolver::solve(double t0, double tn, unsigned int n_steps,
+Matrix<double> ODESolver::solve(double x0, double xn, unsigned int n_steps,
 										const Vector<double>& y0) const {
 
-	double h = (tn-t0)/double(n_steps);
-	Matrix<double> y_sol(y0.size(), n_steps + 1);
+	// return vector
+	Matrix<double> y_sol(1 + y0.size(), n_steps + 1);
+
+	// calculate steps increments
+	double h = (xn-x0) / double(n_steps);
 
 	// initial condition
 	Vector<double> y1 = y0;
-	for (unsigned int j = 0; j < y0.size(); ++j)
-		y_sol(j,0) = y1(j);
 
-	// evolve in time
+	y_sol(0, 0) = x0;
+	for (unsigned int j = 0; j < y0.size(); ++j)
+		y_sol(1 + j, 0) = y1(j);
+
+	// step forward in x
 	for (unsigned int i = 1; i < n_steps + 1; ++i) {
+
+		// TODO: implement iterative h for solution error < max_error
 		double err_estimate;
-		double t = t0 + h*(i-1);
+
+		// current time
+		double x = x0 + h * (i - 1);
+
 		// apply the jump conditions
-		y1 = y1 + odeSolverJumpy(t, y1);
-		// evolve from t, t+h in time
-		Vector<double> y1_next = nextStep(t, y1, h, err_estimate);
-		y1 = y1_next;
+		y1 = y1 + odeSolverJumpy(x, y1);
+
+		// evolve from x, x+h
+		y1 = nextStep(x, y1, h, err_estimate);
+
+		// save results in solution vector
+		y_sol(0, i) = x + h;
 		for (unsigned int j = 0; j < y0.size(); ++j)
-			y_sol(j,i) = y1(j);
+			y_sol(1 + j, i) = y1(j);
+
 	}
 
 	return y_sol;

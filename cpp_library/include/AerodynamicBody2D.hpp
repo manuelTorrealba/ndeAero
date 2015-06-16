@@ -29,10 +29,15 @@ namespace nde {
 		void calcPotentialFlow(double angle_attack,
 									PanelMethodType panel_method_type);
 
+		// property gets
 		double getAngleAttack() const;
 		Vector<double> getForceCoeffs() const;
+		double getMomentCoeff() const;
 		Vector<double> getControlPointsDistances() const;
 		Vector<double> getVelocities() const;
+		Vector<Vector<double> > getTangents() const;
+
+		// write results
 		void writeResultsToFile(const std::string& file_name) const;
 
 	private:
@@ -45,6 +50,7 @@ namespace nde {
 		Vector<Vector<double> > _x;
 		Vector<double> _d_length_x;
 		Vector<Vector<double> > _normal_x;
+		Vector<Vector<double> > _tangent_x;
 		Vector<double> _cp_x;
 
 		Vector<double> _c_F;

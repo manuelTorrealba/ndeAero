@@ -105,19 +105,17 @@ namespace nde {
 	}
 
 	double Airfoil::getPointBottom(double x) const {
-		if (_coords_type == Airfoil::naca) {
+		if (_coords_type == Airfoil::naca)
 			return _naca_airfoil->bottom(x);
-		} else if (_coords_type == Airfoil::points) {
+		else if (_coords_type == Airfoil::points)
 			return (*_interp_bottom)(x / _chord) * _chord;
-		}
 	}
 
 	double Airfoil::getPointTop(double x) const {
-		if (_coords_type == Airfoil::naca) {
+		if (_coords_type == Airfoil::naca)
 			return _naca_airfoil->top(x);
-		} else if (_coords_type == Airfoil::points) {
+		else if (_coords_type == Airfoil::points)
 			return (*_interp_top)(x / _chord) * _chord;
-		}
 	}
 
 	void Airfoil::writeCoordsToFile(const std::string& file_name,

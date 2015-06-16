@@ -124,6 +124,14 @@ namespace nde {
 
 	}
 
+
+	Vector<double> Interpolator1D::getInterpolationRange() const {
+		Vector<double> x(2);
+		x(0) = x_values(0);
+		x(1) = x_values.last_v();
+		return x;
+	}
+
 	double Interpolator1D::calcSplineValue(unsigned int interval, unsigned int h,
 														double x) const {
 		double dx = x - x_values(interval);

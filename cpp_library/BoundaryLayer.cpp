@@ -6,60 +6,99 @@
  */
 
 #include "BoundaryLayer.hpp"
-#include "Constants.hpp"
 #include <cmath>
 
 namespace nde {
 
-BoundaryLayer::BoundaryLayer(double Re, const Interpolator1D& U)
-									: ODESolver(1, 1.), _Re(Re), _U(U) {
+BoundaryLayer::BoundaryLayer(double Re, const Interpolator1D& U_ext)
+									: ODESolver(1, 1.), _Re(Re), _U_ext(U_ext) {
 	_roughness = 0.;
 }
 
+BoundaryLayerSolution BoundaryLayer::solve() const {
+
+	//
+	// ODE solution for the boundary layer equations
+	//
+
+	// high number of steps -> solution needs small increments for ODE solver
+	//									stability
+	double n_steps = std::pow(2, 14);
+
+	// Initial solution for ODE solver:
+	// start with blausius solution for a small x_0 = 0.01
+	double x_0 = 0.01;
+
+	return BoundaryLayerSolution(this->ODESolver::solve(
+														x_0,
+														_U_ext.getInterpolationRange()(1),
+														n_steps,
+														setBlausiusInitialCondition(x_0)));
+
+}
 
 Vector<double> BoundaryLayer::odeSolverJumpy(double x,
 														const Vector<double>& y) const {
 
-	// outer flow functions
-	double u = _U(x);
-	double d2 = y(0);
-	double d3 = y(1);
-	double turbulent_flag = y(2);
-	double separation_flag = y(3);
-
-	// check for turbulent regime
-	double Re_d2 = _Re * u * d2;
-	double h32 = d3 / d2;
-	bool is_turbulent = (turbulent_flag < -0.5 || turbulentTransition(h32, Re_d2));
+	// this routine applies a negative jump for
+	// the turbulent (component 2 of the result vector)
+	// and attached (component 3 of the return vector) signal variables.
+	Vector<double> Jump_y(4, 0.0);
 
 	// check for the flow still attached
+	double separation_flag = y(3);
 	bool is_attached = !(separation_flag < -0.5);
 
 	// if it is still attached check for conditions
 	// the flow being attached or not at this stage
 	if (is_attached) {
 
-		// Continue with turbulent equations.
+		// outer flow functions
+		double u = _U_ext(x);
+		double d2 = y(0);
+		double d3 = y(1);
+		double turbulent_flag = y(2);
+
+		// check for turbulent regime
+
+		bool is_turbulent = (turbulent_flag < -0.5);
+
+		// check transition from laminar to turbulent, as a function
+		// of Re_d2 and h32.
+		double Re_d2 = _Re * u * d2;
+		double h32 = d3 / d2;
+
+		// In case of laminar flow separation (h32 < 1.51509),
+		// continue with turbulent boundary layer equations.
 		// In practise what probably will happen is that
 		// flow will be reattached at a later section.
-		if (!is_turbulent && h32 < 1.51509) is_turbulent = true; 
+		if (!is_turbulent &&
+			 (EpplerBLFunctions::turbulentTransition(h32, Re_d2, _roughness)
+			  || h32 < 1.51509)) {
+
+			is_turbulent = true;
+			// jump by -1 to indicate turbulent transition
+			// at this point
+			Jump_y(2) = -1.;
+
+		}
 
 		//separation surely happens.
-		if (is_turbulent && h32 < 1.46) is_attached = false;
+		if (is_turbulent && h32 < 1.46) {
+			is_attached = false;
+			// jump by -1 to indicate flow separation
+			// at this point
+			Jump_y(3) = -1.;
+		}
 
 	}
-
-	// apply a negative jump for the turbulent and attached variables.
-	Vector<double> Jump_y(4, 0.0);
-	if (is_turbulent) Jump_y(2) = -1.;
-	if (!is_attached) Jump_y(3) = -1.;
 
 	return Jump_y;
 
 }
 
 Vector<double> BoundaryLayer::odeSolverDy(double x,
-									const Vector<double>& y) const {
+													const Vector<double>& y) const {
 
 	bool is_turbulent = (y(2) < -0.5);
 	bool is_attached = !(y(3) < -0.5);
@@ -68,8 +107,8 @@ Vector<double> BoundaryLayer::odeSolverDy(double x,
 	if (is_attached) {
 
 		// outer flow functions
-		double u = _U(x);
-		double du = _U(1, x);
+		double u = _U_ext(x);
+		double du = _U_ext(1, x);
 
 		// boundary layer current status
 		double d2 = y(0);
@@ -77,9 +116,9 @@ Vector<double> BoundaryLayer::odeSolverDy(double x,
 		double Re_d2 = _Re * u * d2;
 		double h32 = d3 / d2;
 
-		double h12 = calcH12(h32, is_turbulent);
-		double cf = calcCf(h32, Re_d2, is_turbulent);
-		double cd = calcCd(h32, Re_d2, is_turbulent);
+		double h12 = EpplerBLFunctions::calcH12(h32, is_turbulent);
+		double cf = EpplerBLFunctions::calcCfric(h32, Re_d2, is_turbulent);
+		double cd = EpplerBLFunctions::calcCdiss(h32, Re_d2, is_turbulent);
 
 		dy(0) = cf - (2.0 + h12) * du / u * d2;
 		dy(1) = cd - 3.0 * du / u * d3;
@@ -91,176 +130,132 @@ Vector<double> BoundaryLayer::odeSolverDy(double x,
 }
 
 
-double BoundaryLayer::calcH12(double h32, bool turbulent) const {
+Vector<double> BoundaryLayer::setBlausiusInitialCondition(double x_0) const {
 
-	if (!turbulent) {
+	double u_0 = _U_ext(x_0);
+	double Re_0 = _Re * u_0 * x_0;
+	Vector<double> y_0(4);
+	// blausius solution for d2
+	y_0(0) = 0.29004 * x_0 / std::sqrt(Re_0);
+	// blausius solution for d3
+	y_0(1) = 1.61998 * y_0(0);
+	y_0(2) = 0.; // assume flow initially laminar
+	y_0(3) = 0.; // assume flow initially attached
 
-		if (h32 >= 1.57258)
-			return 79.870845 - 89.58214 * h32 + 25.715784 * h32 * h32;
-		else if (h32 >= 1.51509)
-			return 4.02922 - (583.60182 - 724.55916 * h32 + 227.18220 * h32 * h32)
-								 * std::sqrt(h32 - 1.51509);
-		else
-			return 0.0; //laminar separation!
-
-	} else {
-
-		return (11. * h32 + 15.) / (48. * h32 - 59.);
-
-	}
+	return y_0;
 
 }
 
+const Interpolator1D& BoundaryLayer::getUExt() const {
+	return _U_ext;
+}
 
-double BoundaryLayer::calcCf(double h32, double Re_d2, bool turbulent) const {
+/******************************************************************************/
+/* class BoundaryLayerSolution																*/
+/******************************************************************************/
+BoundaryLayerSolution::BoundaryLayerSolution
+						(const Matrix<double>& boundary_layer_ode_solution) {
 
-	if (!turbulent) {
+	size_t num_sol_points = boundary_layer_ode_solution.numcols();
 
-		double eps;
+	Vector<double> x(num_sol_points);
+	Vector<double> d1(num_sol_points);
+	Vector<double> d2(num_sol_points);
+	Vector<double> d3(num_sol_points);
+	Vector<double> h12(num_sol_points);
+	Vector<double> h32(num_sol_points);
 
-		if (h32 >= 1.57258)
-			eps = 1.372391 - 4.226253 * h32 + 2.221687 * h32 * h32;
-		else if (h32 >= 1.51509) {
-			double h12 = calcH12(h32, turbulent);
-			eps = 2.512589 - 1.686095 * h12 + 0.391541 * h12 * h12
-				 - 0.031729 * h12 * h12 * h12;
-		} else {
-			eps = 0.; // laminar separation!
+	for (unsigned int i = 0; i < num_sol_points; ++i) {
+		x(i) = boundary_layer_ode_solution(0, i);
+		d2(i) = boundary_layer_ode_solution(1, i);
+		d3(i) = boundary_layer_ode_solution(2, i);
+		h32(i) = d3(i) / d2(i);
+		h12(i) = EpplerBLFunctions::calcH12(h32(i),
+												boundary_layer_ode_solution(3, i) < -0.5);
+		d1(i) = h12(i) * d2(i);
+	}
+
+	_d1 = new Interpolator1D(x, d1, SPLINE_MONOTONE);
+	_d2 = new Interpolator1D(x, d2, SPLINE_MONOTONE);
+	_d3 = new Interpolator1D(x, d3, SPLINE_MONOTONE);
+	_h12 = new Interpolator1D(x, h12, SPLINE_MONOTONE);
+	_h32 = new Interpolator1D(x, h32, SPLINE_MONOTONE);
+
+	_is_attached = !(boundary_layer_ode_solution(4, num_sol_points - 1) < -0.5);
+
+	if (!_is_attached) {
+
+		// look for the separation point
+		for (size_t i = 1; i < num_sol_points; ++i) {
+
+			// when separation is found, determine separation
+			// coordinate by imposing h32 = 1.46 and linear interpolation
+			if (boundary_layer_ode_solution(4, i) < -0.5) {
+				double x0 = x(i - 2);
+				double x1 = x(i - 1);
+				double y0 = h32(i - 2);
+				double y1 = h32(i - 1);
+//				std::cout << i << "," << x0 << "," << x1 << "," << y0 << "," << y1 << std::endl;
+				_separation_x = x0 + (x1 - x0) / (y1 - y0) * (1.46 - y0);
+				break;
+			}
+
 		}
 
-		return eps / Re_d2;
-
-	} else {
-
-		double h12 = calcH12(h32, turbulent);
-		return 0.045716 * std::pow((h12 - 1.) * Re_d2 , -0.232)
-				* std::exp(-1.260 * h12);
-
-	}
-		
-		
-}
-
-
-double BoundaryLayer::calcCd(double h32, double Re_d2, bool turbulent) const {
-
-	if (!turbulent) {
-
-		double D = 7.853976 - 10.260551 * h32 + 3.418898 * h32 * h32;
-		return 2. * D / Re_d2;
-
-	} else {
-
-		double h12 = calcH12(h32, turbulent);
-		return 0.01 * std::pow((h12 - 1.) * Re_d2, -1./6.);
-
 	}
 
 }
 
+BoundaryLayerSolution::BoundaryLayerSolution
+						(const BoundaryLayerSolution& boundary_layer_solution) {
 
-bool BoundaryLayer::turbulentTransition(double h32, double Re_d2) const {
-	return std::log(Re_d2) >= 18.4 * h32 - 21.74 - 0.36 * _roughness;
-}
-
-
-/******************************************************************************/
-/*	Class AirfoilBoundaryLayer																	*/
-/******************************************************************************/
-
-AirfoilBoundaryLayer::AirfoilBoundaryLayer(double U_inf, double chord,
-							const Vector<double>& d_x, // this is the arc-length vector
-																// measured from the
-																// botton-surface trailing edge
-							const Vector<double>& v_x) : _U_inf(U_inf), _chord(chord) {
-
-	// Reynolds number
-	_Re = _U_inf * _chord / AIR_KINEMATIC_VISCOSITY;
-
-	std::cout << "Reynolds number = " << _Re << std::endl;
-
-	// find stagnation point
-	size_t index_smallest_v = v_x.smallestAbsIndex();
-	double d_x_smallest_v;
-	if (index_smallest_v > 0 && index_smallest_v < v_x.size() - 1) {
-		if (v_x(index_smallest_v - 1) > v_x(index_smallest_v))
-			d_x_smallest_v = 0.5 * (d_x(index_smallest_v)
-										 + d_x(index_smallest_v + 1));
-		else
-			d_x_smallest_v = 0.5 * (d_x(index_smallest_v - 1)
-										 + d_x(index_smallest_v));
-	} else
-		d_x_smallest_v = d_x(index_smallest_v);
-
-	// arrange velocity vectors for top and bottom surfaces
-	Vector<double> x_bottom(index_smallest_v + 2);
-	Vector<double> v_bottom(index_smallest_v + 2);
-	x_bottom(0) = 0.; // stagnation point
-	v_bottom(0) = 0.;
-	for (size_t i = 0; i <= index_smallest_v; ++i) {
-		x_bottom(i + 1) = d_x(index_smallest_v - i);
-		v_bottom(i + 1) = v_x(index_smallest_v - i);
-	}
-
-	Vector<double> x_top(v_x.size() - index_smallest_v);
-	Vector<double> v_top(v_x.size() - index_smallest_v);
-	x_top(0) = 0.; // stagnation point
-	v_top(0) = 0.;
-	for (size_t i = index_smallest_v + 1; i < v_x.size(); ++i) {
-		x_top(i - index_smallest_v) = d_x(i) - d_x_smallest_v;
-		v_top(i - index_smallest_v) = v_x(i);
-	}
-
-
-	Interpolator1D U_bottom(x_bottom, v_bottom, SPLINE_MONOTONE);
-	Interpolator1D U_top(x_top, v_top, SPLINE_MONOTONE);
-//	Interpolator1D U_top(Vector<double>(1,1.0), Vector<double>(1,1.0),
-//								SPLINE_MONOTONE);
-
-	// initialize top and bottom boundary layer objects
-	_boundary_layer_bottom = new BoundaryLayer(_Re, U_bottom);
-	_boundary_layer_top = new BoundaryLayer(_Re, U_top);
-
-	// solve PDEs numerically
-	/*
-	Vector<double> y0_bottom(2);
-	y0_bottom(0) = 0.29004 / std::sqrt(_Re * U_bottom(1,0.0)); // blausius solution
-	y0_bottom(1) = 1.61998 * y0_bottom(0);
-
-	Matrix<double> y_bottom = _boundary_layer_bottom->solve
-										(0., x_bottom.last_v(), x_bottom.last_v() / 10.,
-										y0_bottom);
-	*/
-
-	// start with blausius solution
-	double x_0_top = 0.01;
-	double Re_0_top = _Re * U_top(x_0_top) * x_0_top;
-	Vector<double> y0_top(4);
-	y0_top(0) = 0.29004 * x_0_top / std::sqrt(Re_0_top); // blausius solution
-	y0_top(1) = 1.61998 * y0_top(0); // blausius solution
-	y0_top(2) = 0.; // assume flow initially laminar
-	y0_top(3) = 0.; // assume flow initially attached
-
-	Matrix<double> y_top = _boundary_layer_top->solve
-									(x_0_top, x_top.last_v(), std::pow(2, 8), y0_top);
-
-	std::cout<< "boundary layer top" << std::endl;
-	for (size_t i = 0; i < 21; ++i) {
-		double s = i * x_top.last_v() / 20.;
-		std::cout << s << ", " << y_top(0, i) << ", " << y_top(1, i) <<
-								", " << y_top(2, i) << ", " << y_top(3, i) << std::endl;
-	}
-
+	_is_attached = boundary_layer_solution._is_attached;
+	_separation_x = boundary_layer_solution._separation_x;
+	_d1 = new Interpolator1D(*boundary_layer_solution._d1);
+	_d2 = new Interpolator1D(*boundary_layer_solution._d2);
+	_d3 = new Interpolator1D(*boundary_layer_solution._d3);
+	_h12 = new Interpolator1D(*boundary_layer_solution._h12);
+	_h32 = new Interpolator1D(*boundary_layer_solution._h32);
 
 }
 
-AirfoilBoundaryLayer::~AirfoilBoundaryLayer() {
+BoundaryLayerSolution::~BoundaryLayerSolution() {
 
-	delete _boundary_layer_bottom;
-	delete _boundary_layer_top;
+	delete _d1;
+	delete _d2;
+	delete _d3;
+	delete _h12;
+	delete _h32;
 
 }
 
+bool BoundaryLayerSolution::getIsAttached() const {
+	return _is_attached;
+}
+
+double BoundaryLayerSolution::getSeparationX() const {
+	return _separation_x;
+}
+
+double BoundaryLayerSolution::calcD1(double x) const {
+	return (*_d1)(x);
+}
+
+double BoundaryLayerSolution::calcD2(double x) const {
+	return (*_d2)(x);
+}
+
+double BoundaryLayerSolution::calcD3(double x) const {
+	return (*_d3)(x);
+}
+
+double BoundaryLayerSolution::calcH12(double x) const {
+	return (*_h12)(x);
+}
+
+double BoundaryLayerSolution::calcH32(double x) const {
+	return (*_h32)(x);
+}
 
 } /* end of namespace nde */
 

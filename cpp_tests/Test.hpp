@@ -8,11 +8,14 @@
 #ifndef INCLUDE_TEST_HPP
 #define INCLUDE_TEST_HPP
 
+#include "Vector.hpp"
+
 namespace nde {
 
 	bool testThinAirfoilTheory();
 	bool testODESolver();
-	bool testNACA4Digits();
+	bool testNACAAirfoil(const Vector<unsigned int> &naca_codenum,
+							const std::string& out_file_name);
 
 }
 

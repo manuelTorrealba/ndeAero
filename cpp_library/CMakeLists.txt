@@ -5,7 +5,9 @@ include_directories(${INCLUDE_DIRECTORY})
 
 set(SOURCE_FILES AerodynamicBody2D.cpp
                  Airfoil.cpp
+                 AirfoilBoundaryLayer.cpp
 					  BoundaryLayer.cpp
+					  EpplerBLFunctions.cpp
 					  EquationSolver.cpp
                  Interpolator.cpp
                  MathUtils.cpp
@@ -17,7 +19,9 @@ set(SOURCE_FILES AerodynamicBody2D.cpp
 
 set(HEADER_FILES ${INCLUDE_DIRECTORY}/AerodynamicBody2D.hpp
                  ${INCLUDE_DIRECTORY}/Airfoil.hpp
+                 ${INCLUDE_DIRECTORY}/AirfoilBoundaryLayer.hpp
 					  ${INCLUDE_DIRECTORY}/BoundaryLayer.hpp
+					  ${INCLUDE_DIRECTORY}/EpplerBLFunctions.hpp
                  ${INCLUDE_DIRECTORY}/EquationSolver.hpp
                  ${INCLUDE_DIRECTORY}/Interpolator.hpp
                  ${INCLUDE_DIRECTORY}/MathUtils.hpp
